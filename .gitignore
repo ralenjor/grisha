@@ -1,6 +1,0 @@
-brain/
-data/
-grisha_db_backup/
-
-grisha_db/*
-!grisha_db/.gitkeep
