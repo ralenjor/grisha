@@ -1,0 +1,9 @@
+model_settings:
+  max_tokens: 900
+  overlap_tokens: 150
+  model_name: "llama3.1" # the LLM for answering
+  embed_model: "bge-large-en-v1.5" # model for vectorizing
+
+database_settings:
+  path: "./grisha_db" # Where ChromaDB will save its files
+  collection_name: "grisha_knowledge"
