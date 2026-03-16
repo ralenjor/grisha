@@ -1,341 +1,560 @@
 #!/bin/bash
-# KARKAS Unified Launcher
-# Starts Grisha API + Karkas Server in a tmux session
+# KARKAS Interactive Game Launcher
+# Menu-driven interface for setting up and starting Karkas games
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# Configuration
-SESSION_NAME="karkas"
+# --- Configuration ---
+SERVER_URL="http://localhost:8080"
+GRISHA_URL="http://localhost:8000"
 VENV_PATH="./venv/bin/activate"
-MODEL_NAME="qwen2.5:14b-instruct-q4_K_M"
-GRISHA_PORT=8000
-KARKAS_PORT=8080
-HEALTH_CHECK_TIMEOUT=60
-HEALTH_CHECK_INTERVAL=2
+SESSION_NAME="karkas"
 
-# Colors
-RED='\033[0;31m'
+# --- State ---
+SELECTED_SCENARIO=""
+SELECTED_SCENARIO_NAME=""
+BLUE_PLAYER="human"  # human | ai
+RED_PLAYER="ai"      # human | ai
+SERVER_STATUS="offline"
+SERVER_TURN=0
+SERVER_PHASE="unknown"
+
+# --- Colors ---
+RED_COLOR='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
 BOLD='\033[1m'
+DIM='\033[2m'
 NC='\033[0m' # No Color
 
-print_banner() {
-    echo -e "${CYAN}"
-    echo "╔═══════════════════════════════════════════════════════════════╗"
-    echo "║                    KARKAS UNIFIED LAUNCHER                    ║"
-    echo "║              Grisha RAG + Military Simulation                 ║"
-    echo "╚═══════════════════════════════════════════════════════════════╝"
-    echo -e "${NC}"
-}
-
-print_status() {
-    echo -e "${GREEN}[✓]${NC} $1"
-}
-
-print_waiting() {
-    echo -e "${YELLOW}[○]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[!]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[✗]${NC} $1"
-}
-
-spinner() {
-    local pid=$1
-    local delay=0.1
-    local spinstr='|/-\'
-    echo -n " "
-    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
-        local temp=${spinstr#?}
-        printf " [%c]  " "$spinstr"
-        local spinstr=$temp${spinstr%"$temp"}
-        sleep $delay
-        printf "\b\b\b\b\b\b"
-    done
-    printf "    \b\b\b\b"
-}
-
+# --- Prerequisites Check ---
 check_prerequisites() {
     local missing=0
 
-    echo "Checking prerequisites..."
-    echo ""
+    # Check jq
+    if ! command -v jq &> /dev/null; then
+        echo -e "${RED_COLOR}[!]${NC} jq is not installed. Install with: sudo dnf install jq"
+        missing=1
+    fi
+
+    # Check curl
+    if ! command -v curl &> /dev/null; then
+        echo -e "${RED_COLOR}[!]${NC} curl is not installed. Install with: sudo dnf install curl"
+        missing=1
+    fi
 
     # Check tmux
-    if command -v tmux &> /dev/null; then
-        print_status "tmux installed"
-    else
-        print_error "tmux is not installed. Install with: sudo dnf install tmux"
+    if ! command -v tmux &> /dev/null; then
+        echo -e "${RED_COLOR}[!]${NC} tmux is not installed. Install with: sudo dnf install tmux"
         missing=1
-    fi
-
-    # Check virtual environment
-    if [ -f "$VENV_PATH" ]; then
-        print_status "Virtual environment found"
-    else
-        print_error "Virtual environment not found at $VENV_PATH"
-        print_error "Create with: python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt"
-        missing=1
-    fi
-
-    # Check Ollama
-    if command -v ollama &> /dev/null; then
-        print_status "Ollama installed"
-    else
-        print_error "Ollama is not installed. Install from: https://ollama.com"
-        missing=1
-    fi
-
-    # Check PostgreSQL (optional but recommended)
-    if command -v psql &> /dev/null; then
-        print_status "PostgreSQL client installed"
-    else
-        print_warning "PostgreSQL client not found - persistence features may not work"
     fi
 
     if [ $missing -eq 1 ]; then
         echo ""
-        print_error "Prerequisites missing. Please install them and try again."
+        echo -e "${RED_COLOR}Prerequisites missing. Please install them and try again.${NC}"
         exit 1
     fi
-
-    echo ""
 }
 
-check_existing_session() {
+# --- Server Functions ---
+check_server_status() {
+    local response
+    response=$(curl -s -m 2 "$SERVER_URL/health" 2>/dev/null) || true
+
+    if [ -n "$response" ] && echo "$response" | jq -e '.status' &>/dev/null; then
+        SERVER_STATUS="online"
+        SERVER_TURN=$(echo "$response" | jq -r '.turn // 0')
+        SERVER_PHASE=$(echo "$response" | jq -r '.phase // "unknown"')
+    else
+        SERVER_STATUS="offline"
+        SERVER_TURN=0
+        SERVER_PHASE="unknown"
+    fi
+}
+
+start_server_background() {
+    echo -e "${YELLOW}Starting server...${NC}"
+
+    # Run karkas-server.sh without attaching
+    # The server script normally attaches to tmux at the end, so we run it differently
+
+    # Check if session already exists
     if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
-        echo ""
-        print_warning "Session '$SESSION_NAME' already exists."
-        echo ""
-        echo "Options:"
-        echo "  1) Attach to existing session: tmux attach -t $SESSION_NAME"
-        echo "  2) Kill and restart: ./karkas-stop.sh && ./karkas.sh"
-        echo ""
-        read -p "Attach to existing session? [Y/n] " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Nn]$ ]]; then
-            exit 0
-        else
-            exec tmux attach -t "$SESSION_NAME"
-        fi
-    fi
-}
-
-start_postgresql() {
-    echo -n "Checking PostgreSQL..."
-
-    # Check if PostgreSQL is running
-    if systemctl is-active --quiet postgresql 2>/dev/null; then
-        print_status "PostgreSQL is running"
+        echo -e "${YELLOW}Server session already exists, checking health...${NC}"
     else
-        # Try to start it
-        echo ""
-        print_warning "PostgreSQL is not running. Attempting to start..."
+        # Start the server in background - we'll create the tmux session ourselves
+        tmux new-session -d -s "$SESSION_NAME" -n "services"
+        tmux set-option -t "$SESSION_NAME" -g mouse on
 
-        if sudo systemctl start postgresql 2>/dev/null; then
-            sleep 2
-            if systemctl is-active --quiet postgresql; then
-                print_status "PostgreSQL started successfully"
-            else
-                print_warning "PostgreSQL failed to start - continuing without database"
-            fi
-        else
-            print_warning "Could not start PostgreSQL - continuing without database"
-        fi
+        # First pane: Grisha API
+        tmux send-keys -t "$SESSION_NAME:services" "cd '$SCRIPT_DIR' && source '$VENV_PATH' && echo -e '\\033[1;36m=== GRISHA API (port 8000) ===\\033[0m' && echo '' && python3 grisha_api.py" C-m
+
+        # Split for Karkas Server
+        tmux split-window -t "$SESSION_NAME:services" -v
+
+        # Second pane: Karkas Server
+        tmux send-keys -t "$SESSION_NAME:services.1" "cd '$SCRIPT_DIR/karkas' && source '$SCRIPT_DIR/$VENV_PATH' && echo -e '\\033[1;36m=== KARKAS SERVER (port 8080) ===\\033[0m' && echo '' && sleep 2 && ./run_server.sh" C-m
+
+        # Even out pane sizes
+        tmux select-layout -t "$SESSION_NAME:services" even-vertical
     fi
 
-    # Check if karkas database exists (optional)
-    if command -v psql &> /dev/null && systemctl is-active --quiet postgresql 2>/dev/null; then
-        if sudo -u postgres psql -lqt 2>/dev/null | cut -d \| -f 1 | grep -qw karkas; then
-            print_status "Database 'karkas' exists"
-        else
-            print_warning "Database 'karkas' not found - Karkas will run without persistence"
-            echo "         Create with: sudo -u postgres createdb -O karkas karkas"
-        fi
-    fi
-}
-
-start_ollama() {
-    echo -n "Checking Ollama service..."
-
-    if systemctl is-active --quiet ollama 2>/dev/null; then
-        echo ""
-        print_status "Ollama is running"
-    else
-        echo ""
-        print_warning "Ollama service is inactive. Starting..."
-        sudo systemctl start ollama
-        sleep 1
-    fi
-
-    # Wait for API to be ready
-    echo -n "Waiting for Ollama API..."
-    local max_retries=15
-    local count=0
-    while [ $count -lt $max_retries ]; do
-        if curl -s -m 2 -o /dev/null -w "%{http_code}" http://localhost:11434/api/tags 2>/dev/null | grep -q "200"; then
-            echo ""
-            print_status "Ollama API is ready"
-            return 0
-        fi
-        count=$((count + 1))
-        echo -n "."
-        sleep 1
-    done
-
-    echo ""
-    print_error "Ollama API not responding after ${max_retries}s"
-    exit 1
-}
-
-preload_model() {
-    echo -n "Pre-loading model ($MODEL_NAME)..."
-    ollama run $MODEL_NAME "" --keepalive 30m > /dev/null 2>&1 &
-    local pid=$!
-    spinner $pid
-    print_status "Model loaded"
-}
-
-start_services() {
-    echo ""
-    echo "Starting services in tmux session '$SESSION_NAME'..."
-
-    # Create new tmux session with Grisha API in first pane
-    tmux new-session -d -s "$SESSION_NAME" -n "services"
-
-    # Configure the session
-    tmux set-option -t "$SESSION_NAME" -g mouse on
-
-    # First pane: Grisha API
-    tmux send-keys -t "$SESSION_NAME:services" "cd '$SCRIPT_DIR' && source '$VENV_PATH' && echo -e '\\033[1;36m=== GRISHA API (port $GRISHA_PORT) ===\\033[0m' && echo '' && python3 grisha_api.py" C-m
-
-    # Split horizontally for Karkas Server
-    tmux split-window -t "$SESSION_NAME:services" -v
-
-    # Second pane: Karkas Server (small delay to let Grisha start first)
-    tmux send-keys -t "$SESSION_NAME:services.1" "cd '$SCRIPT_DIR/karkas' && source '$SCRIPT_DIR/$VENV_PATH' && echo -e '\\033[1;36m=== KARKAS SERVER (port $KARKAS_PORT) ===\\033[0m' && echo '' && sleep 2 && ./run_server.sh" C-m
-
-    # Set pane titles (if terminal supports it)
-    tmux select-pane -t "$SESSION_NAME:services.0" -T "Grisha API"
-    tmux select-pane -t "$SESSION_NAME:services.1" -T "Karkas Server"
-
-    # Even out pane sizes
-    tmux select-layout -t "$SESSION_NAME:services" even-vertical
-}
-
-wait_for_services() {
-    echo ""
-    echo -e "${BOLD}Waiting for services to become healthy...${NC}"
-    echo ""
-
-    local grisha_ready=false
-    local karkas_ready=false
+    # Wait for server to become healthy
+    echo -n "Waiting for server"
+    local max_wait=60
     local elapsed=0
 
-    while [ $elapsed -lt $HEALTH_CHECK_TIMEOUT ]; do
-        # Check Grisha API
-        if [ "$grisha_ready" = false ]; then
-            if curl -s -m 2 "http://localhost:${GRISHA_PORT}/search?q=test" > /dev/null 2>&1; then
-                grisha_ready=true
-                print_status "Grisha API is ready (port $GRISHA_PORT)"
-            fi
-        fi
-
-        # Check Karkas Server
-        if [ "$karkas_ready" = false ]; then
-            local health_response
-            health_response=$(curl -s -m 2 "http://localhost:${KARKAS_PORT}/health" 2>/dev/null)
-            if echo "$health_response" | grep -q '"status"' 2>/dev/null; then
-                karkas_ready=true
-                print_status "Karkas Server is ready (port $KARKAS_PORT)"
-
-                # Check database status from health response
-                if echo "$health_response" | grep -q '"database":.*"healthy"'; then
-                    print_status "Database connection healthy"
-                elif echo "$health_response" | grep -q '"database":.*"disabled"'; then
-                    print_warning "Database persistence is disabled"
-                fi
-            fi
-        fi
-
-        # Both ready?
-        if [ "$grisha_ready" = true ] && [ "$karkas_ready" = true ]; then
+    while [ $elapsed -lt $max_wait ]; do
+        check_server_status
+        if [ "$SERVER_STATUS" = "online" ]; then
             echo ""
-            echo -e "${GREEN}${BOLD}All services are ready!${NC}"
+            echo -e "${GREEN}Server is online!${NC}"
             return 0
         fi
-
-        # Show waiting status
-        if [ "$grisha_ready" = false ]; then
-            printf "\r${YELLOW}[○]${NC} Waiting for Grisha API... (%ds)  " "$elapsed"
-        elif [ "$karkas_ready" = false ]; then
-            printf "\r${YELLOW}[○]${NC} Waiting for Karkas Server... (%ds)  " "$elapsed"
-        fi
-
-        sleep $HEALTH_CHECK_INTERVAL
-        elapsed=$((elapsed + HEALTH_CHECK_INTERVAL))
+        echo -n "."
+        sleep 2
+        elapsed=$((elapsed + 2))
     done
 
-    # Timeout reached
     echo ""
-    echo ""
-    print_warning "Health check timeout reached (${HEALTH_CHECK_TIMEOUT}s)"
+    echo -e "${RED_COLOR}Server did not become healthy in ${max_wait}s${NC}"
+    echo "Check the tmux session: tmux attach -t $SESSION_NAME"
+    return 1
+}
 
-    if [ "$grisha_ready" = false ]; then
-        print_error "Grisha API did not become ready"
+# --- Scenario Functions ---
+fetch_scenarios() {
+    local response
+    response=$(curl -s -m 5 "$SERVER_URL/api/scenarios" 2>/dev/null) || true
+
+    if [ -n "$response" ]; then
+        echo "$response" | jq -r '.scenarios[] | "\(.id)|\(.name)|\(.description)|\(.red_faction_name)|\(.blue_faction_name)"' 2>/dev/null
     fi
-    if [ "$karkas_ready" = false ]; then
-        print_error "Karkas Server did not become ready"
+}
+
+load_scenario() {
+    local scenario_id="$1"
+    local response
+    response=$(curl -s -X POST "$SERVER_URL/api/scenarios/$scenario_id/load" 2>/dev/null) || true
+
+    if echo "$response" | jq -e '.scenario' &>/dev/null; then
+        return 0
+    else
+        echo -e "${RED_COLOR}Failed to load scenario${NC}"
+        echo "$response" | jq -r '.detail // .message // "Unknown error"' 2>/dev/null
+        return 1
+    fi
+}
+
+# --- AI Control Functions ---
+configure_ai() {
+    # Enable/disable AI for each faction based on player selections
+
+    if [ "$BLUE_PLAYER" = "ai" ]; then
+        curl -s -X POST "$SERVER_URL/api/grisha/enable/blue" >/dev/null 2>&1
+    else
+        curl -s -X POST "$SERVER_URL/api/grisha/disable/blue" >/dev/null 2>&1
     fi
 
-    echo ""
-    echo "Services may still be starting. Check the tmux session for details."
+    if [ "$RED_PLAYER" = "ai" ]; then
+        curl -s -X POST "$SERVER_URL/api/grisha/enable/red" >/dev/null 2>&1
+    else
+        curl -s -X POST "$SERVER_URL/api/grisha/disable/red" >/dev/null 2>&1
+    fi
+}
+
+# --- Display Functions ---
+clear_screen() {
+    printf '\033[2J\033[H'
+}
+
+draw_box_top() {
+    echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
+}
+
+draw_box_bottom() {
+    echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
+}
+
+draw_box_line() {
+    local content="$1"
+    local width=71
+    local padding=$((width - ${#content}))
+    echo -e "${CYAN}|${NC} ${content}$(printf '%*s' $padding '')${CYAN}|${NC}"
+}
+
+draw_box_empty() {
+    echo -e "${CYAN}|${NC}$(printf '%*s' 71 '')${CYAN}|${NC}"
+}
+
+draw_box_separator() {
+    echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
+}
+
+display_menu() {
+    clear_screen
+
+    # Header
+    echo -e "${CYAN}${BOLD}"
+    echo "+-----------------------------------------------------------------------+"
+    echo "|                          KARKAS LAUNCHER                             |"
+    echo "+-----------------------------------------------------------------------+"
+    echo -e "${NC}"
+
+    # Server status
+    local status_color="$RED_COLOR"
+    local status_icon="x"
+    local status_text="Offline"
+
+    if [ "$SERVER_STATUS" = "online" ]; then
+        status_color="$GREEN"
+        status_icon="*"
+        status_text="Online (Turn $SERVER_TURN, Phase: $SERVER_PHASE)"
+    fi
+
+    echo -e "${CYAN}|${NC}  Server Status: ${status_color}${status_icon} ${status_text}${NC}"
+    printf '%*s' $((54 - ${#status_text})) ''
+    echo -e "${CYAN}|${NC}"
+    echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
+    echo -e "${CYAN}|${NC}                                                                       ${CYAN}|${NC}"
+
+    # Menu options
+    # 1. Select Scenario
+    local scenario_display="(none selected)"
+    if [ -n "$SELECTED_SCENARIO_NAME" ]; then
+        scenario_display="$SELECTED_SCENARIO_NAME"
+    fi
+    echo -e "${CYAN}|${NC}  ${BOLD}1.${NC} Select Scenario                                                   ${CYAN}|${NC}"
+    echo -e "${CYAN}|${NC}     ${DIM}>${NC} ${GREEN}${scenario_display}${NC}"
+    printf '%*s' $((60 - ${#scenario_display})) ''
+    echo -e "${CYAN}|${NC}"
+    echo -e "${CYAN}|${NC}                                                                       ${CYAN}|${NC}"
+
+    # 2. Blue Force
+    local blue_human="Human Player"
+    local blue_ai="AI (Grisha)"
+    local blue_human_marker=""
+    local blue_ai_marker=""
+    if [ "$BLUE_PLAYER" = "human" ]; then
+        blue_human_marker="${BOLD}[${NC}${BLUE}${blue_human}${NC}${BOLD}]${NC}"
+        blue_ai_marker="${DIM}${blue_ai}${NC}"
+    else
+        blue_human_marker="${DIM}${blue_human}${NC}"
+        blue_ai_marker="${BOLD}[${NC}${BLUE}${blue_ai}${NC}${BOLD}]${NC}"
+    fi
+    echo -e "${CYAN}|${NC}  ${BOLD}2.${NC} Blue Force (NATO)                                                 ${CYAN}|${NC}"
+    echo -e "${CYAN}|${NC}     ${DIM}>${NC} ${blue_human_marker}  /  ${blue_ai_marker}                       ${CYAN}|${NC}"
+    echo -e "${CYAN}|${NC}                                                                       ${CYAN}|${NC}"
+
+    # 3. Red Force
+    local red_human="Human Player"
+    local red_ai="AI (General Svistunov)"
+    local red_human_marker=""
+    local red_ai_marker=""
+    if [ "$RED_PLAYER" = "human" ]; then
+        red_human_marker="${BOLD}[${NC}${RED_COLOR}${red_human}${NC}${BOLD}]${NC}"
+        red_ai_marker="${DIM}${red_ai}${NC}"
+    else
+        red_human_marker="${DIM}${red_human}${NC}"
+        red_ai_marker="${BOLD}[${NC}${RED_COLOR}${red_ai}${NC}${BOLD}]${NC}"
+    fi
+    echo -e "${CYAN}|${NC}  ${BOLD}3.${NC} Red Force (Warsaw Pact)                                           ${CYAN}|${NC}"
+    echo -e "${CYAN}|${NC}     ${DIM}>${NC} ${red_human_marker}  /  ${red_ai_marker}                       ${CYAN}|${NC}"
+    echo -e "${CYAN}|${NC}                                                                       ${CYAN}|${NC}"
+
+    # 4. Start Game
+    echo -e "${CYAN}|${NC}  ${BOLD}4.${NC} ${GREEN}Start Game${NC}                                                        ${CYAN}|${NC}"
+    echo -e "${CYAN}|${NC}                                                                       ${CYAN}|${NC}"
+
+    # Server management
+    echo -e "${CYAN}|${NC}  ${BOLD}S.${NC} Start Server                                                       ${CYAN}|${NC}"
+    echo -e "${CYAN}|${NC}  ${BOLD}A.${NC} Attach to Server (tmux)                                            ${CYAN}|${NC}"
+    echo -e "${CYAN}|${NC}                                                                       ${CYAN}|${NC}"
+
+    # Quit
+    echo -e "${CYAN}|${NC}  ${BOLD}Q.${NC} Quit                                                               ${CYAN}|${NC}"
+    echo -e "${CYAN}|${NC}                                                                       ${CYAN}|${NC}"
+    echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
     echo ""
 }
 
-print_instructions() {
+select_scenario_menu() {
+    clear_screen
+    echo -e "${CYAN}${BOLD}"
+    echo "+-----------------------------------------------------------------------+"
+    echo "|                         SELECT SCENARIO                              |"
+    echo "+-----------------------------------------------------------------------+"
+    echo -e "${NC}"
+
+    if [ "$SERVER_STATUS" != "online" ]; then
+        echo -e "${RED_COLOR}Server is offline. Start the server first.${NC}"
+        echo ""
+        read -p "Press Enter to continue..."
+        return
+    fi
+
+    echo "Fetching scenarios..."
+    local scenarios
+    scenarios=$(fetch_scenarios)
+
+    if [ -z "$scenarios" ]; then
+        echo -e "${RED_COLOR}No scenarios available or failed to fetch.${NC}"
+        echo ""
+        read -p "Press Enter to continue..."
+        return
+    fi
+
     echo ""
-    echo "┌─────────────────────────────────────────────────────────────────┐"
-    echo "│  ${BOLD}ENDPOINTS${NC}                                                      │"
-    echo "│    Grisha API:    http://localhost:${GRISHA_PORT}                          │"
-    echo "│    Karkas Server: http://localhost:${KARKAS_PORT}                          │"
-    echo "│    Karkas Docs:   http://localhost:${KARKAS_PORT}/docs                     │"
-    echo "├─────────────────────────────────────────────────────────────────┤"
-    echo "│  ${BOLD}TMUX CONTROLS${NC}                                                  │"
-    echo "│    Ctrl-B D     Detach (services keep running)                  │"
-    echo "│    Ctrl-B ↑/↓   Switch between panes                            │"
-    echo "│    Ctrl-B [     Scroll mode (q to exit)                         │"
-    echo "│    Ctrl-C       Stop service in current pane                    │"
-    echo "├─────────────────────────────────────────────────────────────────┤"
-    echo "│  ${BOLD}COMMANDS${NC}                                                       │"
-    echo "│    tmux attach -t ${SESSION_NAME}    Reattach to session                 │"
-    echo "│    ./karkas-stop.sh          Stop all services                  │"
-    echo "└─────────────────────────────────────────────────────────────────┘"
+    local i=1
+    local ids=()
+    local names=()
+
+    while IFS='|' read -r id name desc red_name blue_name; do
+        ids+=("$id")
+        names+=("$name")
+        echo -e "  ${BOLD}$i.${NC} ${GREEN}$name${NC}"
+        echo -e "     ${DIM}$desc${NC}"
+        echo -e "     ${BLUE}Blue:${NC} $blue_name  ${RED_COLOR}Red:${NC} $red_name"
+        echo ""
+        ((i++))
+    done <<< "$scenarios"
+
+    echo -e "  ${BOLD}0.${NC} Cancel"
     echo ""
-    echo -e "Attaching to tmux session. Press ${BOLD}Ctrl-B D${NC} to detach."
-    echo ""
-    sleep 2
+    read -p "Select scenario (1-$((i-1))): " choice
+
+    if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "${#ids[@]}" ]; then
+        SELECTED_SCENARIO="${ids[$((choice-1))]}"
+        SELECTED_SCENARIO_NAME="${names[$((choice-1))]}"
+        echo -e "${GREEN}Selected: $SELECTED_SCENARIO_NAME${NC}"
+        sleep 1
+    fi
 }
 
-# Main
-print_banner
-check_prerequisites
-check_existing_session
-start_postgresql
-start_ollama
-preload_model
-start_services
-wait_for_services
-print_instructions
+toggle_blue_player() {
+    if [ "$BLUE_PLAYER" = "human" ]; then
+        BLUE_PLAYER="ai"
+    else
+        BLUE_PLAYER="human"
+    fi
+}
 
-# Attach to the session
-exec tmux attach -t "$SESSION_NAME"
+toggle_red_player() {
+    if [ "$RED_PLAYER" = "human" ]; then
+        RED_PLAYER="ai"
+    else
+        RED_PLAYER="human"
+    fi
+}
+
+get_local_ip() {
+    # Try to get the primary local IP
+    ip route get 1 2>/dev/null | awk '{print $7; exit}' || hostname -I 2>/dev/null | awk '{print $1}' || echo "YOUR_IP"
+}
+
+start_game() {
+    clear_screen
+
+    # Start server if not running
+    if [ "$SERVER_STATUS" != "online" ]; then
+        echo -e "${YELLOW}Server is offline. Starting server...${NC}"
+        echo ""
+        if ! start_server_background; then
+            echo -e "${RED_COLOR}Failed to start server.${NC}"
+            read -p "Press Enter to continue..."
+            return
+        fi
+        echo ""
+    fi
+
+    if [ -z "$SELECTED_SCENARIO" ]; then
+        echo -e "${RED_COLOR}No scenario selected. Select a scenario first.${NC}"
+        read -p "Press Enter to continue..."
+        return
+    fi
+
+    echo -e "${CYAN}${BOLD}Starting Game${NC}"
+    echo "============="
+    echo ""
+
+    # Load scenario
+    echo -n "Loading scenario: $SELECTED_SCENARIO_NAME... "
+    if load_scenario "$SELECTED_SCENARIO"; then
+        echo -e "${GREEN}OK${NC}"
+    else
+        echo -e "${RED_COLOR}FAILED${NC}"
+        read -p "Press Enter to continue..."
+        return
+    fi
+
+    # Configure AI
+    echo -n "Configuring AI players... "
+    configure_ai
+    echo -e "${GREEN}OK${NC}"
+
+    echo ""
+    echo -e "Blue: $([ "$BLUE_PLAYER" = "human" ] && echo "${BLUE}Human${NC}" || echo "${DIM}AI${NC}")"
+    echo -e "Red:  $([ "$RED_PLAYER" = "human" ] && echo "${RED_COLOR}Human${NC}" || echo "${DIM}AI${NC}")"
+    echo ""
+
+    # Determine launch mode
+    if [ "$BLUE_PLAYER" = "ai" ] && [ "$RED_PLAYER" = "ai" ]; then
+        # Both AI - watch mode
+        echo -e "${YELLOW}Both factions are AI-controlled.${NC}"
+        echo "The game will run automatically. Watch the server logs or attach to tmux."
+        echo ""
+        echo "To view the game:"
+        echo "  tmux attach -t $SESSION_NAME"
+        echo ""
+        read -p "Press Enter to continue..."
+
+    elif [ "$BLUE_PLAYER" = "human" ] && [ "$RED_PLAYER" = "human" ]; then
+        # Both human
+        echo -e "${YELLOW}Both players are human.${NC}"
+        echo ""
+        echo "Are both players on the same machine?"
+        echo "  1. Same machine (launch two tmux windows)"
+        echo "  2. Different machines (show connection instructions)"
+        echo ""
+        read -p "Choice (1/2): " same_machine
+
+        if [ "$same_machine" = "1" ]; then
+            # Launch two client windows in tmux
+            echo ""
+            echo "Launching both clients in tmux..."
+
+            # Create windows for both clients
+            tmux new-window -t "$SESSION_NAME" -n "blue-client"
+            tmux send-keys -t "$SESSION_NAME:blue-client" "cd '$SCRIPT_DIR/karkas' && source '$SCRIPT_DIR/$VENV_PATH' && python client/cli.py --faction blue" C-m
+
+            tmux new-window -t "$SESSION_NAME" -n "red-client"
+            tmux send-keys -t "$SESSION_NAME:red-client" "cd '$SCRIPT_DIR/karkas' && source '$SCRIPT_DIR/$VENV_PATH' && python client/cli.py --faction red" C-m
+
+            echo ""
+            echo -e "${GREEN}Clients launched!${NC}"
+            echo ""
+            echo "Tmux controls:"
+            echo "  Ctrl-B n     Next window"
+            echo "  Ctrl-B p     Previous window"
+            echo "  Ctrl-B D     Detach (keep running)"
+            echo ""
+            read -p "Press Enter to attach to tmux..."
+            exec tmux attach -t "$SESSION_NAME"
+
+        else
+            # Different machines
+            local_ip=$(get_local_ip)
+            clear_screen
+            echo -e "${CYAN}${BOLD}"
+            echo "+-----------------------------------------------------------------------+"
+            echo "|                    REMOTE PLAYER INSTRUCTIONS                        |"
+            echo "+-----------------------------------------------------------------------+"
+            echo -e "${NC}"
+            echo ""
+            echo "  The remote player should run:"
+            echo ""
+            echo -e "    ${GREEN}cd $SCRIPT_DIR${NC}"
+            echo -e "    ${GREEN}source venv/bin/activate${NC}"
+            echo -e "    ${GREEN}python karkas/client/cli.py --server http://${local_ip}:8080 \\${NC}"
+            echo -e "    ${GREEN}                            --faction red${NC}"
+            echo ""
+            echo -e "  ${BOLD}Your IP address: ${CYAN}${local_ip}${NC}"
+            echo ""
+            echo "+-----------------------------------------------------------------------+"
+            echo ""
+            read -p "Press Enter to launch your Blue client..."
+
+            # Launch local blue client in tmux
+            tmux new-window -t "$SESSION_NAME" -n "blue-client"
+            tmux send-keys -t "$SESSION_NAME:blue-client" "cd '$SCRIPT_DIR/karkas' && source '$SCRIPT_DIR/$VENV_PATH' && python client/cli.py --faction blue" C-m
+
+            exec tmux attach -t "$SESSION_NAME"
+        fi
+
+    else
+        # One human, one AI
+        local human_faction
+        if [ "$BLUE_PLAYER" = "human" ]; then
+            human_faction="blue"
+        else
+            human_faction="red"
+        fi
+
+        echo "Launching client for ${human_faction} faction..."
+        echo ""
+
+        # Launch client in tmux
+        tmux new-window -t "$SESSION_NAME" -n "${human_faction}-client"
+        tmux send-keys -t "$SESSION_NAME:${human_faction}-client" "cd '$SCRIPT_DIR/karkas' && source '$SCRIPT_DIR/$VENV_PATH' && python client/cli.py --faction $human_faction" C-m
+
+        echo -e "${GREEN}Client launched!${NC}"
+        echo ""
+        echo "Tmux controls:"
+        echo "  Ctrl-B n     Next window"
+        echo "  Ctrl-B D     Detach (keep running)"
+        echo ""
+        read -p "Press Enter to attach to tmux..."
+        exec tmux attach -t "$SESSION_NAME"
+    fi
+}
+
+# --- Main ---
+main() {
+    check_prerequisites
+
+    while true; do
+        check_server_status
+        display_menu
+
+        read -p "Choice: " -n 1 choice
+        echo ""
+
+        case "$choice" in
+            1)
+                select_scenario_menu
+                ;;
+            2)
+                toggle_blue_player
+                ;;
+            3)
+                toggle_red_player
+                ;;
+            4)
+                start_game
+                ;;
+            [sS])
+                if [ "$SERVER_STATUS" = "offline" ]; then
+                    start_server_background
+                    read -p "Press Enter to continue..."
+                else
+                    echo -e "${YELLOW}Server is already running.${NC}"
+                    sleep 1
+                fi
+                ;;
+            [aA])
+                if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+                    exec tmux attach -t "$SESSION_NAME"
+                else
+                    echo -e "${RED_COLOR}No server session found.${NC}"
+                    sleep 1
+                fi
+                ;;
+            [qQ])
+                echo ""
+                echo "Goodbye!"
+                exit 0
+                ;;
+            *)
+                # Invalid choice, just redraw menu
+                ;;
+        esac
+    done
+}
+
+main "$@"

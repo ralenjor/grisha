@@ -27,7 +27,7 @@ class GrishaAdvisor:
     - Warning of potential threats and opportunities
     """
 
-    SYSTEM_PROMPT = """You are Major Sarah Mitchell, a NATO military advisor in a
+    SYSTEM_PROMPT = """You are Grisha, a NATO military advisor in a
 theater-level wargame simulation. You advise the Blue force commander (human player)
 on tactical and operational decisions.
 

@@ -306,12 +306,47 @@ cd ../../../..
 python -c "import karkas_engine; print('Karkas engine OK')"
 ```
 
-### Unified Launcher (Recommended)
+### Interactive Game Launcher (Recommended)
 
-The easiest way to run both Grisha and Karkas together:
+The easiest way to set up and play Karkas:
 
 ```bash
 ./karkas.sh
+```
+
+This provides an interactive menu to:
+1. Check server status (start automatically if offline)
+2. Select a scenario from the available list
+3. Configure Blue Force as Human or AI
+4. Configure Red Force as Human or AI
+5. Launch the game with appropriate client windows
+
+**Menu interface:**
+```
++-----------------------------------------------------------------------+
+|                          KARKAS LAUNCHER                             |
++-----------------------------------------------------------------------+
+|  Server Status: * Online (Turn 0, Phase: planning)                   |
++-----------------------------------------------------------------------+
+|  1. Select Scenario                                                  |
+|     > Fulda Gap 1985                                                 |
+|                                                                      |
+|  2. Blue Force (NATO)                                                |
+|     > [Human Player]  /  AI (Grisha)                                 |
+|                                                                      |
+|  3. Red Force (Warsaw Pact)                                          |
+|     > Human Player  /  [AI (General Svistunov)]                      |
+|                                                                      |
+|  4. Start Game                                                       |
++-----------------------------------------------------------------------+
+```
+
+### Server-Only Launcher
+
+For headless/server deployment, use the server launcher directly:
+
+```bash
+./karkas-server.sh
 ```
 
 This script:
@@ -743,8 +778,8 @@ Grisha provides AI capabilities:
 
 | Role | Description |
 |------|-------------|
-| **Commander** | Autonomous decision-making for Red force (Colonel Petrov) |
-| **Advisor** | Analysis and recommendations for Blue force (Major Mitchell) |
+| **Commander** | Autonomous decision-making for Red force (General Svistunov) |
+| **Advisor** | Analysis and recommendations for Blue force (Grisha) |
 | **Order Parser** | Natural language to structured orders |
 
 ### Requirements
@@ -1058,7 +1093,7 @@ sudo apt install tmux  # Ubuntu
 tmux attach -t karkas
 
 # Or kill and restart
-./karkas-stop.sh && ./karkas.sh
+./karkas-stop.sh && ./karkas-server.sh
 ```
 
 **Services not becoming healthy:**
@@ -1213,7 +1248,8 @@ sudo systemctl start postgresql
 
 | Command | Description |
 |---------|-------------|
-| `./karkas.sh` | Start Grisha API + Karkas Server |
+| `./karkas.sh` | Interactive game launcher (scenario/player setup) |
+| `./karkas-server.sh` | Start Grisha API + Karkas Server in tmux |
 | `./karkas-stop.sh` | Stop all services |
 | `./grisha.sh` | Start Grisha interactive mode only |
 | `tmux attach -t karkas` | Reattach to running session |

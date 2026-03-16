@@ -48,7 +48,7 @@ Grisha is a RAG (Retrieval-Augmented Generation) system for military doctrine. K
 │  │  ┌───────────────┐  ┌───────────────┐  ┌───────────────────┐    │   │
 │  │  │   Commander   │  │    Advisor    │  │   Order Parser    │    │   │
 │  │  │  (Red Force)  │  │  (Blue Force) │  │  (NL → Struct)    │    │   │
-│  │  │  Col. Petrov  │  │  Maj. Mitchell│  │                   │    │   │
+│  │  │ Gen. Svistunov│  │     Grisha    │  │                   │    │   │
 │  │  └───────┬───────┘  └───────┬───────┘  └─────────┬─────────┘    │   │
 │  └──────────┼──────────────────┼────────────────────┼──────────────┘   │
 │             └──────────────────┼────────────────────┘                   │
@@ -147,14 +147,27 @@ python3 grisha_api.py
 
 ### Running the Full Stack (Grisha + Karkas)
 
-The unified launcher starts both Grisha API and Karkas Server in a tmux session:
+**Interactive Game Launcher** (recommended):
 
 ```bash
-./karkas.sh      # Start all services
+./karkas.sh      # Interactive menu for scenario/player setup
 ./karkas-stop.sh # Stop all services
 ```
 
-The launcher:
+The interactive launcher provides a menu to:
+- Check server status and auto-start if needed
+- Select from available scenarios
+- Configure Blue/Red as Human or AI
+- Launch game clients in tmux
+
+**Server-Only Mode** (for headless/remote deployment):
+
+```bash
+./karkas-server.sh  # Start Grisha API + Karkas Server in tmux
+./karkas-stop.sh    # Stop all services
+```
+
+The server launcher:
 - Checks prerequisites (venv, Ollama, PostgreSQL, tmux)
 - Starts PostgreSQL and Ollama if not running
 - Pre-loads the LLM model
@@ -163,6 +176,7 @@ The launcher:
 
 **tmux controls:**
 - `Ctrl-B D` - Detach (services keep running)
+- `Ctrl-B n/p` - Next/previous window
 - `Ctrl-B ↑/↓` - Switch panes
 - `tmux attach -t karkas` - Reattach later
 
@@ -185,7 +199,8 @@ See the [User Guide](USER_GUIDE.md) for complete setup including PostgreSQL, C++
 
 ```
 grisha/
-├── karkas.sh               # Unified launcher (Grisha + Karkas)
+├── karkas.sh               # Interactive game launcher (scenario/player setup)
+├── karkas-server.sh        # Server-only launcher (Grisha + Karkas in tmux)
 ├── karkas-stop.sh          # Stop all services
 ├── grisha.sh               # Grisha-only interactive launcher
 ├── grisha_ingestor.py      # Document ingestion pipeline

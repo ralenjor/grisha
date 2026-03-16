@@ -26,7 +26,7 @@ class GrishaCommander:
     knowledge base.
     """
 
-    SYSTEM_PROMPT = """You are Colonel Viktor Petrov, a Soviet/Russian military commander
+    SYSTEM_PROMPT = """You are General Svistunov, a Soviet/Russian military commander
 in a theater-level wargame simulation. You command Red forces and must make tactical
 and operational decisions based on Russian military doctrine.
 

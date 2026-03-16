@@ -1174,13 +1174,13 @@ class TestSystemPrompts:
 
     def test_commander_system_prompt(self):
         """Test commander has appropriate system prompt."""
-        assert "Colonel Viktor Petrov" in GrishaCommander.SYSTEM_PROMPT
+        assert "General Svistunov" in GrishaCommander.SYSTEM_PROMPT
         assert "Russian military doctrine" in GrishaCommander.SYSTEM_PROMPT
         assert "JSON format" in GrishaCommander.SYSTEM_PROMPT
 
     def test_advisor_system_prompt(self):
         """Test advisor has appropriate system prompt."""
-        assert "Major Sarah Mitchell" in GrishaAdvisor.SYSTEM_PROMPT
+        assert "Grisha" in GrishaAdvisor.SYSTEM_PROMPT
         assert "NATO" in GrishaAdvisor.SYSTEM_PROMPT
         assert "ADVISOR" in GrishaAdvisor.SYSTEM_PROMPT
 
