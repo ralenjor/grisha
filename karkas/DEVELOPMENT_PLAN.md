@@ -45,7 +45,7 @@ KARKAS is a WEGO-based military wargame simulation integrating:
 | Additional Scenarios | NOT STARTED | 0% |
 | Doctrine Data | NOT STARTED | 0% |
 | Database Persistence | COMPLETE | 100% |
-| Production Hardening | IN PROGRESS | 14% |
+| Production Hardening | IN PROGRESS | 43% |
 
 ---
 
@@ -481,7 +481,13 @@ KARKAS is a WEGO-based military wargame simulation integrating:
   - CLI: `tools/db_admin.py` - Database administration tool
 
 ### 8.2 Production Hardening
-- [ ] **8.2.1** Configuration management (env vars, secrets)
+- [x] **8.2.1** Configuration management (env vars, secrets)
+  - Implemented: `server/config.py` - Centralized Pydantic Settings
+  - Features: Type-safe configuration with validation, .env file support, nested config subsystems
+  - Subsystems: ServerSettings, DatabaseSettings, LoggingSettings, GrishaSettings, OllamaSettings, PathSettings, ClientSettings
+  - Environment prefixes: KARKAS_*, KARKAS_DB_*, KARKAS_LOG_*, GRISHA_*, OLLAMA_*
+  - Updated modules: database/config.py, api/main.py, grisha/commander.py, grisha/advisor.py, grisha/order_parser.py, client/cli.py
+  - Added dependency: pydantic-settings>=2.1.0
 - [x] **8.2.2** Logging infrastructure
   - Implemented: `server/logging_config.py` - Centralized logging configuration
   - Features: JSON and colored text formatters, request ID tracking
@@ -492,7 +498,39 @@ KARKAS is a WEGO-based military wargame simulation integrating:
   - Decorator: log_execution_time for function timing
   - Replaced all print() statements with structured logging
   - Tests: `tests/test_logging.py`
-- [ ] **8.2.3** Error handling improvements
+- [x] **8.2.3** Error handling improvements
+  - Implemented: `server/exceptions.py` - Custom exception hierarchy
+    - Base: KarkasException with error_code, message, details, http_status, error_type
+    - Validation: ValidationError, InvalidFactionError, InvalidOrderTypeError, MissingFieldError, InvalidCoordinatesError
+    - Not Found: NotFoundError, UnitNotFoundError, OrderNotFoundError, ScenarioNotFoundError, GameNotFoundError
+    - Conflict: ConflictError, DuplicateResourceError, InvalidStateError, OrdersAlreadySubmittedError, ActiveScenarioError, NoActiveScenarioError
+    - Service: ServiceError, GrishaServiceError, OllamaServiceError, ServiceTimeoutError, ServiceConnectionError
+    - Database: DatabaseError, DatabaseConnectionError, DatabaseIntegrityError
+    - Auth: AuthenticationError, AuthorizationError, FactionAccessError
+    - Rate Limit: RateLimitError
+    - Simulation: SimulationError, TerrainError, PathfindingError
+  - Implemented: `server/api/error_handlers.py` - Global exception handlers
+    - karkas_exception_handler: Converts KarkasException to standardized JSON response
+    - http_exception_handler: Converts HTTPException to standardized format
+    - validation_exception_handler: Converts Pydantic validation errors with field-level details
+    - generic_exception_handler: Catches unhandled exceptions (hides details in production)
+  - Standardized error response format:
+    ```json
+    {
+      "error": {
+        "code": "UNIT_NOT_FOUND",
+        "message": "Unit not found: unit_xyz",
+        "type": "not_found",
+        "details": {"resource_type": "Unit", "resource_id": "unit_xyz"},
+        "timestamp": "2026-03-16T...",
+        "request_id": "abc123"
+      }
+    }
+    ```
+  - Updated API routes: main.py, routes/units.py, routes/orders.py, routes/game.py, routes/scenarios.py, routes/persistence.py
+  - Proper HTTP status codes: 400 (validation), 404 (not found), 409 (conflict), 422 (validation errors), 500 (server), 502/503/504 (service)
+  - Enhanced health check endpoint with component status
+  - Tests: `tests/test_error_handling.py` (35 tests)
 - [ ] **8.2.4** Rate limiting
 - [ ] **8.2.5** Authentication (optional)
 - [x] **8.2.6** Docker containerization
@@ -751,12 +789,26 @@ All core simulation components are fully implemented and tested:
 | Docker Ignore | `.dockerignore` |
 | Env Example | `.env.example` |
 
+### Completed Components (Configuration)
+| Component | Location |
+|-----------|----------|
+| Centralized Settings | `server/config.py` |
+| Database Config | `server/database/config.py` |
+| Env Example | `.env.example` |
+
 ### Completed Components (Logging)
 | Component | Location |
 |-----------|----------|
 | Logging Config | `server/logging_config.py` |
 | Server Package Init | `server/__init__.py` |
 | Logging Tests | `tests/test_logging.py` |
+
+### Completed Components (Error Handling)
+| Component | Location |
+|-----------|----------|
+| Exception Hierarchy | `server/exceptions.py` |
+| Error Handlers | `server/api/error_handlers.py` |
+| Error Handling Tests | `tests/test_error_handling.py` |
 
 ### Directories Needing Content
 | Directory | Purpose | Related Task |
@@ -770,8 +822,8 @@ All core simulation components are fully implemented and tested:
 ## Statistics
 
 - **Total Tasks:** 159
-- **Completed:** 149 (94%)
-- **Pending:** 10 (6%)
+- **Completed:** 151 (95%)
+- **Pending:** 8 (5%)
 - **Critical Path Length:** 8 phases
 - **Last Updated:** 2026-03-16
 
@@ -784,14 +836,49 @@ All core simulation components are fully implemented and tested:
 - 5.3.2 NATO doctrine reference files
 - 5.3.3 Doctrine integration with Grisha queries
 
-**Phase 8 - Production Hardening (5 tasks)**
-- 8.2.1 Configuration management (env vars, secrets)
-- 8.2.3 Error handling improvements
+**Phase 8 - Production Hardening (3 tasks)**
 - 8.2.4 Rate limiting
 - 8.2.5 Authentication (optional)
 - 8.2.7 CI/CD pipeline
 
 ### Recent Completions (This Session)
+- Error Handling Improvements (8.2.3)
+  - **server/exceptions.py**: Custom exception hierarchy
+    - 30+ exception classes covering all error scenarios
+    - Automatic error code generation from class name
+    - Standardized to_dict() method for API responses
+    - Proper HTTP status code mapping
+  - **server/api/error_handlers.py**: Global exception handlers
+    - KarkasException → standardized JSON response
+    - HTTPException → standardized format
+    - Pydantic ValidationError → field-level details
+    - Generic Exception → safe fallback (hides details in production)
+  - **Updated routes**: All API routes now use custom exceptions
+    - Invalid faction → InvalidFactionError (422)
+    - Unit not found → UnitNotFoundError (404)
+    - Duplicate resource → DuplicateResourceError (409)
+    - Invalid state → InvalidStateError (409)
+    - Service unavailable → ServiceError (503)
+  - **tests/test_error_handling.py**: 35 tests covering all exception classes
+  - **Enhanced health check**: Component-level status (server, database)
+
+- Configuration Management (8.2.1)
+  - **server/config.py**: Centralized Pydantic Settings configuration
+    - Type-safe configuration with Pydantic BaseSettings
+    - Support for .env file loading
+    - Nested configuration subsystems (server, database, logging, grisha, ollama, paths, client)
+    - Environment variable prefixes: KARKAS_*, KARKAS_DB_*, KARKAS_LOG_*, GRISHA_*, OLLAMA_*
+    - Cached settings with `get_settings()` function
+  - **Updated modules**:
+    - `server/database/config.py`: Delegates to centralized settings
+    - `server/api/main.py`: Uses settings for server config, CORS, database
+    - `server/grisha/commander.py`: Uses settings for Grisha/Ollama URLs
+    - `server/grisha/advisor.py`: Uses settings for Grisha/Ollama URLs
+    - `server/grisha/order_parser.py`: Uses settings for Ollama config
+    - `client/cli.py`: Supports KARKAS_SERVER_URL environment variable
+  - **.env.example**: Updated with all configuration options
+  - **pyproject.toml**: Added pydantic-settings>=2.1.0 dependency
+
 - Logging Infrastructure (8.2.2)
   - **server/logging_config.py**: Centralized logging configuration
     - JSON formatter for structured production logging

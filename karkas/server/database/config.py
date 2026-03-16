@@ -3,17 +3,27 @@ Database Configuration (8.1.1 PostgreSQL/PostGIS setup)
 
 Provides database connection configuration with support for environment variables,
 PostGIS spatial extensions, and connection pooling settings.
+
+This module now delegates to the centralized settings system (server.config)
+while maintaining backward compatibility with existing code.
 """
 
-import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import quote_plus
+
+# Import from centralized settings
+from server.config import get_settings, DatabaseSettings
 
 
 @dataclass
 class DatabaseConfig:
-    """Database connection configuration"""
+    """
+    Database connection configuration.
+
+    This class is maintained for backward compatibility. New code should use
+    `server.config.get_settings().database` directly.
+    """
 
     # Connection parameters
     host: str = "localhost"
@@ -37,17 +47,39 @@ class DatabaseConfig:
 
     @classmethod
     def from_env(cls) -> "DatabaseConfig":
-        """Load configuration from environment variables"""
+        """Load configuration from centralized settings."""
+        settings = get_settings().database
         return cls(
-            host=os.getenv("KARKAS_DB_HOST", "localhost"),
-            port=int(os.getenv("KARKAS_DB_PORT", "5432")),
-            database=os.getenv("KARKAS_DB_NAME", "karkas"),
-            username=os.getenv("KARKAS_DB_USER", "karkas"),
-            password=os.getenv("KARKAS_DB_PASSWORD", "karkas"),
-            pool_size=int(os.getenv("KARKAS_DB_POOL_SIZE", "5")),
-            max_overflow=int(os.getenv("KARKAS_DB_MAX_OVERFLOW", "10")),
-            echo=os.getenv("KARKAS_DB_ECHO", "").lower() in ("true", "1", "yes"),
-            schema=os.getenv("KARKAS_DB_SCHEMA", "karkas"),
+            host=settings.host,
+            port=settings.port,
+            database=settings.name,
+            username=settings.user,
+            password=settings.password,
+            pool_size=settings.pool_size,
+            max_overflow=settings.max_overflow,
+            pool_timeout=settings.pool_timeout,
+            pool_recycle=settings.pool_recycle,
+            echo=settings.echo,
+            echo_pool=settings.echo_pool,
+            schema=settings.schema_name,
+        )
+
+    @classmethod
+    def from_settings(cls, settings: DatabaseSettings) -> "DatabaseConfig":
+        """Create config from DatabaseSettings instance."""
+        return cls(
+            host=settings.host,
+            port=settings.port,
+            database=settings.name,
+            username=settings.user,
+            password=settings.password,
+            pool_size=settings.pool_size,
+            max_overflow=settings.max_overflow,
+            pool_timeout=settings.pool_timeout,
+            pool_recycle=settings.pool_recycle,
+            echo=settings.echo,
+            echo_pool=settings.echo_pool,
+            schema=settings.schema_name,
         )
 
     def get_url(self, async_driver: bool = False) -> str:
@@ -66,7 +98,7 @@ _config: Optional[DatabaseConfig] = None
 
 
 def get_database_config() -> DatabaseConfig:
-    """Get the global database configuration"""
+    """Get the global database configuration."""
     global _config
     if _config is None:
         _config = DatabaseConfig.from_env()
@@ -74,14 +106,19 @@ def get_database_config() -> DatabaseConfig:
 
 
 def set_database_config(config: DatabaseConfig) -> None:
-    """Set the global database configuration"""
+    """Set the global database configuration."""
     global _config
     _config = config
 
 
 def get_database_url(async_driver: bool = False) -> str:
-    """Get the database connection URL"""
+    """Get the database connection URL."""
     return get_database_config().get_url(async_driver)
+
+
+def is_database_enabled() -> bool:
+    """Check if database persistence is enabled."""
+    return get_settings().database.enabled
 
 
 # SQL to create the schema and enable PostGIS

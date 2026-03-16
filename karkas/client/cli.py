@@ -2,6 +2,7 @@
 import asyncio
 import json
 import math
+import os
 import sys
 import threading
 from datetime import datetime
@@ -10,6 +11,27 @@ from typing import Optional
 
 import httpx
 import websockets
+
+# Add parent directory for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+def get_default_server_url() -> str:
+    """Get default server URL from environment or settings."""
+    # Check environment variable first
+    env_url = os.environ.get("KARKAS_SERVER_URL")
+    if env_url:
+        return env_url
+
+    # Try to load from centralized settings
+    try:
+        from server.config import get_settings
+        return get_settings().client.server_url
+    except ImportError:
+        pass
+
+    # Fallback default
+    return "http://localhost:8080"
 
 
 class TerminalColors:
@@ -352,8 +374,14 @@ class ASCIIMapRenderer:
 class KarkasClient:
     """Command-line client for KARKAS server with real-time WebSocket updates"""
 
-    def __init__(self, server_url: str = "http://localhost:8080"):
-        self.server_url = server_url.rstrip("/")
+    def __init__(self, server_url: Optional[str] = None):
+        """
+        Initialize the KARKAS client.
+
+        Args:
+            server_url: Server URL. Defaults to KARKAS_SERVER_URL env var or settings.
+        """
+        self.server_url = (server_url or get_default_server_url()).rstrip("/")
         self.ws_url = server_url.replace("http", "ws") + "/ws"
         self.http = httpx.AsyncClient(base_url=self.server_url, timeout=30.0)
         self.faction: Optional[str] = None
@@ -793,10 +821,11 @@ async def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="KARKAS Command-Line Client")
+    default_server = get_default_server_url()
     parser.add_argument(
         "--server", "-s",
-        default="http://localhost:8080",
-        help="Server URL (default: http://localhost:8080)"
+        default=default_server,
+        help=f"Server URL (default: {default_server}, or set KARKAS_SERVER_URL)"
     )
     parser.add_argument(
         "--faction", "-f",

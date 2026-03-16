@@ -6,6 +6,8 @@ from typing import Optional
 
 import httpx
 
+from server.config import get_settings
+
 
 class OrderParser:
     """
@@ -73,12 +75,20 @@ If you cannot parse the order, set success=false and explain in ambiguities."""
 
     def __init__(
         self,
-        ollama_host: str = "http://localhost:11434",
-        model: str = "llama3.3:70b",
+        ollama_host: Optional[str] = None,
+        model: Optional[str] = None,
     ):
-        self.ollama_host = ollama_host
-        self.model = model
-        self.http_client = httpx.AsyncClient(timeout=60.0)
+        """
+        Initialize the Order Parser.
+
+        Args:
+            ollama_host: Override Ollama host URL (default from settings/env)
+            model: Override LLM model name (default from settings/env)
+        """
+        settings = get_settings()
+        self.ollama_host = ollama_host or settings.ollama.host
+        self.model = model or settings.ollama.model
+        self.http_client = httpx.AsyncClient(timeout=float(settings.ollama.timeout))
 
         # Known unit patterns
         self.unit_patterns = [

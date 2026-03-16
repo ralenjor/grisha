@@ -11,6 +11,7 @@ import httpx
 # Add parent path for Grisha imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
+from server.config import get_settings
 from server.logging_config import get_logger, log_grisha_api_call, log_ollama_call, LOGGER_GRISHA
 
 logger = get_logger(f"{LOGGER_GRISHA}.commander")
@@ -69,14 +70,23 @@ Respond in the following JSON format when issuing orders:
 
     def __init__(
         self,
-        grisha_api_url: str = "http://localhost:8000",
-        ollama_host: str = "http://localhost:11434",
-        model: str = "llama3.3:70b",
+        grisha_api_url: Optional[str] = None,
+        ollama_host: Optional[str] = None,
+        model: Optional[str] = None,
     ):
-        self.grisha_api_url = grisha_api_url
-        self.ollama_host = ollama_host
-        self.model = model
-        self.http_client = httpx.AsyncClient(timeout=120.0)
+        """
+        Initialize the Grisha Commander.
+
+        Args:
+            grisha_api_url: Override Grisha API URL (default from settings/env)
+            ollama_host: Override Ollama host URL (default from settings/env)
+            model: Override LLM model name (default from settings/env)
+        """
+        settings = get_settings()
+        self.grisha_api_url = grisha_api_url or settings.grisha.api_url
+        self.ollama_host = ollama_host or settings.ollama.host
+        self.model = model or settings.ollama.model
+        self.http_client = httpx.AsyncClient(timeout=float(settings.ollama.timeout))
         self.context_history: list[dict] = []
 
     async def close(self):

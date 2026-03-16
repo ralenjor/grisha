@@ -1,7 +1,12 @@
 """Unit management routes"""
 import uuid
 from typing import Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
+
+from server.exceptions import (
+    UnitNotFoundError,
+    ValidationError,
+)
 
 router = APIRouter()
 
@@ -19,6 +24,9 @@ async def list_units(
     units = list(_units.values())
 
     if faction:
+        if faction not in ["red", "blue"]:
+            from server.exceptions import InvalidFactionError
+            raise InvalidFactionError(faction)
         units = [u for u in units if u.get("faction") == faction]
     if type:
         units = [u for u in units if u.get("type") == type]
@@ -33,7 +41,7 @@ async def get_unit(unit_id: str):
     """Get a specific unit by ID"""
     unit = _units.get(unit_id)
     if not unit:
-        raise HTTPException(404, "Unit not found")
+        raise UnitNotFoundError(unit_id)
     return unit
 
 
@@ -87,7 +95,7 @@ async def update_unit(unit_id: str, updates: dict):
     """Update a unit"""
     unit = _units.get(unit_id)
     if not unit:
-        raise HTTPException(404, "Unit not found")
+        raise UnitNotFoundError(unit_id)
 
     # Update allowed fields
     allowed_fields = ["position", "heading", "posture", "logistics", "morale"]
@@ -105,7 +113,7 @@ async def update_unit(unit_id: str, updates: dict):
 async def delete_unit(unit_id: str):
     """Delete a unit"""
     if unit_id not in _units:
-        raise HTTPException(404, "Unit not found")
+        raise UnitNotFoundError(unit_id)
 
     del _units[unit_id]
     return {"message": "Unit deleted"}
@@ -116,7 +124,7 @@ async def get_subordinates(unit_id: str):
     """Get subordinate units"""
     unit = _units.get(unit_id)
     if not unit:
-        raise HTTPException(404, "Unit not found")
+        raise UnitNotFoundError(unit_id)
 
     subordinates = [
         u for u in _units.values()
@@ -133,11 +141,18 @@ async def assign_parent(unit_id: str, parent_id: str):
     parent = _units.get(parent_id)
 
     if not unit:
-        raise HTTPException(404, "Unit not found")
+        raise UnitNotFoundError(unit_id)
     if not parent:
-        raise HTTPException(404, "Parent unit not found")
+        raise UnitNotFoundError(parent_id)
     if unit.get("faction") != parent.get("faction"):
-        raise HTTPException(400, "Units must be same faction")
+        raise ValidationError(
+            "Units must belong to the same faction",
+            field="faction",
+            details={
+                "unit_faction": unit.get("faction"),
+                "parent_faction": parent.get("faction"),
+            },
+        )
 
     unit["parent_id"] = parent_id
     return unit

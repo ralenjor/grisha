@@ -1,12 +1,11 @@
 """KARKAS Server - Main FastAPI Application"""
 import asyncio
-import os
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
 from .models import (
@@ -16,7 +15,14 @@ from .models import (
     Faction, TurnPhase,
 )
 from .routes import units, orders, game, scenarios, persistence
+from .error_handlers import register_exception_handlers
 
+from server.config import get_settings
+from server.exceptions import (
+    InvalidFactionError,
+    InvalidStateError,
+    OrdersAlreadySubmittedError,
+)
 from server.logging_config import (
     setup_logging, get_logger, RequestLoggingMiddleware,
     log_turn_execution, log_order_submission, LOGGER_API
@@ -68,12 +74,20 @@ sim = SimulationManager()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler"""
+    settings = get_settings()
+
     # Initialize logging first
-    setup_logging()
+    setup_logging(
+        level=settings.logging.level,
+        log_format=settings.logging.format,
+        log_to_file=settings.logging.to_file,
+        log_dir=settings.logging.dir,
+    )
     logger.info("KARKAS Server starting...")
+    logger.info(f"Configuration: debug={settings.server.debug}, db_enabled={settings.database.enabled}")
 
     # Initialize database if enabled
-    if os.getenv("KARKAS_DB_ENABLED", "").lower() in ("true", "1", "yes"):
+    if settings.database.enabled:
         try:
             from server.database import init_database
             logger.info("Initializing database...")
@@ -94,7 +108,7 @@ async def lifespan(app: FastAPI):
             logger.debug(f"Error closing WebSocket: {e}")
 
     # Close database connections
-    if os.getenv("KARKAS_DB_ENABLED", "").lower() in ("true", "1", "yes"):
+    if settings.database.enabled:
         try:
             from server.database import close_database
             close_database()
@@ -110,13 +124,18 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Register exception handlers for standardized error responses
+register_exception_handlers(app)
+
 # Request logging middleware (must be added before CORS)
 app.add_middleware(RequestLoggingMiddleware)
 
 # CORS middleware for client access
+# Get settings for CORS origins configuration
+_settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
+    allow_origins=_settings.server.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -129,7 +148,7 @@ app.include_router(game.router, prefix="/api/game", tags=["Game"])
 app.include_router(scenarios.router, prefix="/api/scenarios", tags=["Scenarios"])
 
 # Include persistence router if database is enabled
-if os.getenv("KARKAS_DB_ENABLED", "").lower() in ("true", "1", "yes"):
+if _settings.database.enabled:
     app.include_router(persistence.router)
 
 
@@ -149,8 +168,33 @@ async def root():
 
 @app.get("/health")
 async def health():
-    """Health check endpoint"""
-    return {"status": "healthy"}
+    """Health check endpoint with component status"""
+    settings = get_settings()
+
+    health_status = {
+        "status": "healthy",
+        "components": {
+            "server": {"status": "healthy"},
+        },
+    }
+
+    # Check database if enabled
+    if settings.database.enabled:
+        try:
+            from server.database.session import get_session
+            with get_session() as session:
+                session.execute("SELECT 1")
+            health_status["components"]["database"] = {"status": "healthy"}
+        except Exception as e:
+            health_status["components"]["database"] = {
+                "status": "unhealthy",
+                "error": str(e),
+            }
+            health_status["status"] = "degraded"
+    else:
+        health_status["components"]["database"] = {"status": "disabled"}
+
+    return health_status
 
 
 @app.websocket("/ws")
@@ -200,15 +244,19 @@ async def submit_orders(faction: str, batch: OrderBatch):
     """Submit orders for a faction"""
     if faction not in ["red", "blue"]:
         logger.warning(f"Invalid faction in order submission: {faction}")
-        raise HTTPException(400, "Invalid faction")
+        raise InvalidFactionError(faction)
 
     if sim.phase != TurnPhase.PLANNING:
         logger.warning(f"Order submission rejected: not in planning phase (current: {sim.phase})")
-        raise HTTPException(400, "Not in planning phase")
+        raise InvalidStateError(
+            "Cannot submit orders outside planning phase",
+            current_state=sim.phase.value,
+            required_state="planning",
+        )
 
     if sim.orders_submitted[faction]:
         logger.warning(f"Order submission rejected: {faction} already submitted")
-        raise HTTPException(400, "Orders already submitted")
+        raise OrdersAlreadySubmittedError(faction)
 
     # Store orders
     sim.pending_orders[faction] = [order.model_dump() for order in batch.orders]
@@ -304,7 +352,7 @@ async def execute_turn() -> dict:
 async def get_perception(faction: str) -> dict:
     """Get perception state for a faction"""
     if faction not in ["red", "blue"]:
-        raise HTTPException(400, "Invalid faction")
+        raise InvalidFactionError(faction)
 
     # Build perception state from units
     own_units = [
@@ -353,7 +401,7 @@ async def enable_grisha(faction: str):
     """Enable Grisha AI for a faction"""
     if faction not in ["red", "blue"]:
         logger.warning(f"Invalid faction for Grisha enable: {faction}")
-        raise HTTPException(400, "Invalid faction")
+        raise InvalidFactionError(faction)
 
     if faction == "red":
         sim.red_ai_enabled = True
@@ -369,7 +417,7 @@ async def disable_grisha(faction: str):
     """Disable Grisha AI for a faction"""
     if faction not in ["red", "blue"]:
         logger.warning(f"Invalid faction for Grisha disable: {faction}")
-        raise HTTPException(400, "Invalid faction")
+        raise InvalidFactionError(faction)
 
     if faction == "red":
         sim.red_ai_enabled = False
@@ -384,16 +432,14 @@ def main():
     """Entry point for running the server"""
     import uvicorn
 
-    # Get configuration from environment
-    host = os.getenv("KARKAS_HOST", "0.0.0.0")
-    port = int(os.getenv("KARKAS_PORT", "8080"))
-    log_level = os.getenv("KARKAS_LOG_LEVEL", "info").lower()
+    # Get configuration from centralized settings
+    settings = get_settings()
 
     uvicorn.run(
         app,
-        host=host,
-        port=port,
-        log_level=log_level,
+        host=settings.server.host,
+        port=settings.server.port,
+        log_level=settings.logging.level.lower(),
         access_log=True,
     )
 

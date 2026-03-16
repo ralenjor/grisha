@@ -1,7 +1,12 @@
 """Game management routes"""
 from datetime import datetime
 from typing import Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
+
+from server.exceptions import (
+    InvalidFactionError,
+    InvalidStateError,
+)
 
 router = APIRouter()
 
@@ -71,10 +76,14 @@ async def get_turn_history(start_turn: int = 0, end_turn: Optional[int] = None):
 async def mark_ready(faction: str):
     """Mark a faction as ready for turn execution"""
     if faction not in ["red", "blue"]:
-        raise HTTPException(400, "Invalid faction")
+        raise InvalidFactionError(faction)
 
     if _game_state["phase"] != "planning":
-        raise HTTPException(400, "Not in planning phase")
+        raise InvalidStateError(
+            "Cannot mark ready outside planning phase",
+            current_state=_game_state["phase"],
+            required_state="planning",
+        )
 
     if faction == "red":
         _game_state["red_ready"] = True
@@ -94,7 +103,11 @@ async def mark_ready(faction: str):
 async def execute_turn_manual():
     """Manually trigger turn execution (for testing)"""
     if _game_state["phase"] != "planning":
-        raise HTTPException(400, "Not in planning phase")
+        raise InvalidStateError(
+            "Cannot execute turn outside planning phase",
+            current_state=_game_state["phase"],
+            required_state="planning",
+        )
 
     # Execute turn
     result = execute_turn()

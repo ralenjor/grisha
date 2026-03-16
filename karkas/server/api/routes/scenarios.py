@@ -1,7 +1,15 @@
 """Scenario management routes"""
 import os
 from typing import Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
+
+from server.exceptions import (
+    ScenarioNotFoundError,
+    DuplicateResourceError,
+    MissingFieldError,
+    ActiveScenarioError,
+    NoActiveScenarioError,
+)
 
 router = APIRouter()
 
@@ -110,7 +118,7 @@ async def get_scenario(scenario_id: str):
     """Get a specific scenario by ID"""
     scenario = _scenarios.get(scenario_id)
     if not scenario:
-        raise HTTPException(404, "Scenario not found")
+        raise ScenarioNotFoundError(scenario_id)
     return scenario
 
 
@@ -121,7 +129,7 @@ async def load_scenario(scenario_id: str):
 
     scenario = _scenarios.get(scenario_id)
     if not scenario:
-        raise HTTPException(404, "Scenario not found")
+        raise ScenarioNotFoundError(scenario_id)
 
     # In production, this would:
     # 1. Load terrain data
@@ -147,13 +155,13 @@ async def create_scenario(scenario_data: dict):
         scenario_data["id"] = scenario_id
 
     if scenario_id in _scenarios:
-        raise HTTPException(400, "Scenario ID already exists")
+        raise DuplicateResourceError("Scenario", scenario_id)
 
     # Validate required fields
     required = ["name", "region", "red_faction", "blue_faction"]
     for field in required:
         if field not in scenario_data:
-            raise HTTPException(400, f"Missing required field: {field}")
+            raise MissingFieldError(field, resource="Scenario")
 
     _scenarios[scenario_id] = scenario_data
     return scenario_data
@@ -163,10 +171,10 @@ async def create_scenario(scenario_data: dict):
 async def update_scenario(scenario_id: str, updates: dict):
     """Update an existing scenario"""
     if scenario_id not in _scenarios:
-        raise HTTPException(404, "Scenario not found")
+        raise ScenarioNotFoundError(scenario_id)
 
     if scenario_id == _active_scenario:
-        raise HTTPException(400, "Cannot update active scenario")
+        raise ActiveScenarioError(scenario_id, "update")
 
     _scenarios[scenario_id].update(updates)
     return _scenarios[scenario_id]
@@ -176,10 +184,10 @@ async def update_scenario(scenario_id: str, updates: dict):
 async def delete_scenario(scenario_id: str):
     """Delete a scenario"""
     if scenario_id not in _scenarios:
-        raise HTTPException(404, "Scenario not found")
+        raise ScenarioNotFoundError(scenario_id)
 
     if scenario_id == _active_scenario:
-        raise HTTPException(400, "Cannot delete active scenario")
+        raise ActiveScenarioError(scenario_id, "delete")
 
     del _scenarios[scenario_id]
     return {"message": "Scenario deleted"}
@@ -191,7 +199,7 @@ async def unload_scenario():
     global _active_scenario
 
     if not _active_scenario:
-        raise HTTPException(400, "No scenario is active")
+        raise NoActiveScenarioError()
 
     scenario_name = _scenarios[_active_scenario]["name"]
     _active_scenario = None
@@ -204,7 +212,7 @@ async def get_scenario_orbat(scenario_id: str, faction: Optional[str] = None):
     """Get ORBAT for a scenario"""
     scenario = _scenarios.get(scenario_id)
     if not scenario:
-        raise HTTPException(404, "Scenario not found")
+        raise ScenarioNotFoundError(scenario_id)
 
     # In production, load ORBAT from file
     # For now, return sample data

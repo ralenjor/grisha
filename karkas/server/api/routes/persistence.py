@@ -8,7 +8,7 @@ Provides REST endpoints for:
 """
 
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -25,6 +25,12 @@ from server.api.models.game import (
     ScenarioConfig,
 )
 from server.api.models.units import Faction
+from server.exceptions import (
+    GameNotFoundError,
+    ValidationError,
+    NotFoundError,
+    DatabaseError,
+)
 
 
 router = APIRouter(prefix="/api/persistence", tags=["persistence"])
@@ -164,8 +170,10 @@ async def create_game(
             game_id=game_id,
             message=f"Game created: {game_id}",
         )
+    except ValueError as e:
+        raise ValidationError(str(e))
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise DatabaseError(f"Failed to create game: {e}", operation="create_game")
 
 
 @router.get("/games/{game_id}")
@@ -177,7 +185,7 @@ async def get_game(
     """Get game details"""
     state = game_store.load_full_state(game_id, session)
     if state is None:
-        raise HTTPException(status_code=404, detail=f"Game not found: {game_id}")
+        raise GameNotFoundError(game_id)
     return state
 
 
@@ -190,7 +198,7 @@ async def delete_game(
     """Delete a game"""
     success = game_store.delete_game(game_id, session)
     if not success:
-        raise HTTPException(status_code=404, detail=f"Game not found: {game_id}")
+        raise GameNotFoundError(game_id)
     return {"message": f"Game deleted: {game_id}"}
 
 
@@ -203,7 +211,7 @@ async def get_game_state(
     """Get current game state"""
     state = game_store.load_game_state(game_id, session)
     if state is None:
-        raise HTTPException(status_code=404, detail=f"Game not found: {game_id}")
+        raise GameNotFoundError(game_id)
     return state
 
 
@@ -219,7 +227,7 @@ async def save_game_state(
         game_store.save_game_state(game_id, request.game_state, session)
         return {"message": "State saved"}
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise GameNotFoundError(game_id)
 
 
 # =============================================================================
@@ -252,7 +260,7 @@ async def get_turn_result(
     """Get result for a specific turn"""
     result = turn_history.get_turn_result(game_id, turn, session)
     if result is None:
-        raise HTTPException(status_code=404, detail=f"Turn result not found: turn {turn}")
+        raise NotFoundError("TurnResult", f"{game_id}/turn-{turn}")
     return result
 
 
@@ -265,7 +273,7 @@ async def get_game_statistics(
     """Get aggregate statistics for a game"""
     stats = turn_history.get_game_statistics(game_id, session)
     if not stats:
-        raise HTTPException(status_code=404, detail=f"Game not found: {game_id}")
+        raise GameNotFoundError(game_id)
     return GameStatisticsResponse(**stats)
 
 
@@ -305,7 +313,9 @@ async def start_replay(
             turn_result=state.turn_result,
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        if "not found" in str(e).lower():
+            raise GameNotFoundError(game_id)
+        raise ValidationError(str(e), details={"game_id": game_id, "start_turn": start_turn})
 
 
 @router.post("/games/{game_id}/replay/forward", response_model=ReplayStateResponse)
@@ -329,8 +339,8 @@ async def replay_forward(
             is_at_end=state.is_at_end,
             turn_result=state.turn_result,
         )
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError as e:
+        raise ValidationError(str(e), details={"game_id": game_id})
 
 
 @router.post("/games/{game_id}/replay/backward", response_model=ReplayStateResponse)
@@ -353,8 +363,8 @@ async def replay_backward(
             is_at_end=state.is_at_end,
             turn_result=state.turn_result,
         )
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError as e:
+        raise ValidationError(str(e), details={"game_id": game_id})
 
 
 @router.post("/games/{game_id}/replay/jump", response_model=ReplayStateResponse)
@@ -379,7 +389,7 @@ async def replay_jump(
             turn_result=state.turn_result,
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise ValidationError(str(e), details={"game_id": game_id, "turn": turn})
 
 
 @router.get("/games/{game_id}/replay/export")
@@ -394,5 +404,7 @@ async def export_replay(
             replay.start_replay(game_id, session=session)
 
         return replay.export_replay(session)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError as e:
+        if "not found" in str(e).lower():
+            raise GameNotFoundError(game_id)
+        raise ValidationError(str(e), details={"game_id": game_id})

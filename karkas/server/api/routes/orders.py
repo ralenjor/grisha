@@ -1,7 +1,14 @@
 """Order management routes"""
 import uuid
 from typing import Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
+
+from server.exceptions import (
+    OrderNotFoundError,
+    ValidationError,
+    MissingFieldError,
+    InvalidOrderTypeError,
+)
 
 router = APIRouter()
 
@@ -33,7 +40,7 @@ async def get_order(order_id: str):
     """Get a specific order by ID"""
     order = _orders.get(order_id)
     if not order:
-        raise HTTPException(404, "Order not found")
+        raise OrderNotFoundError(order_id)
     return order
 
 
@@ -48,7 +55,14 @@ async def create_order(order_data: dict):
     # Validate order
     validation = validate_order(order_data)
     if not validation["valid"]:
-        raise HTTPException(400, validation["error"])
+        # Return all errors in details, first error as message
+        raise ValidationError(
+            message=validation["error"],
+            details={
+                "errors": validation.get("all_errors", [validation["error"]]),
+                "warnings": validation.get("warnings", []),
+            },
+        )
 
     _orders[order_id] = order_data
     return order_data
@@ -65,7 +79,7 @@ async def cancel_order(order_id: str):
     """Cancel an order"""
     order = _orders.get(order_id)
     if not order:
-        raise HTTPException(404, "Order not found")
+        raise OrderNotFoundError(order_id)
 
     order["active"] = False
     return {"message": "Order cancelled"}
@@ -109,12 +123,17 @@ def validate_order(order_data: dict) -> dict:
             errors.append(f"Missing required field: {field}")
 
     if errors:
-        return {"valid": False, "error": errors[0], "warnings": warnings}
+        return {
+            "valid": False,
+            "error": errors[0],
+            "all_errors": errors,
+            "warnings": warnings,
+        }
 
     # Validate order type
     valid_types = ["move", "attack", "defend", "support", "recon", "withdraw", "resupply", "hold"]
     if order_data["order_type"] not in valid_types:
-        errors.append(f"Invalid order type: {order_data['order_type']}")
+        errors.append(f"Invalid order type: {order_data['order_type']}. Valid types: {', '.join(valid_types)}")
 
     # Validate objective
     objective = order_data.get("objective", {})
@@ -143,9 +162,14 @@ def validate_order(order_data: dict) -> dict:
         warnings.append("Attack order with weapons hold ROE may be ineffective")
 
     if errors:
-        return {"valid": False, "error": errors[0], "warnings": warnings}
+        return {
+            "valid": False,
+            "error": errors[0],
+            "all_errors": errors,
+            "warnings": warnings,
+        }
 
-    return {"valid": True, "error": None, "warnings": warnings}
+    return {"valid": True, "error": None, "all_errors": [], "warnings": warnings}
 
 
 @router.post("/parse-natural-language")
