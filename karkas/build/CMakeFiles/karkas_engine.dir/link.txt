@@ -1,1 +1,0 @@
-/usr/bin/c++ -fPIC -g -Wl,--dependency-file=CMakeFiles/karkas_engine.dir/link.d -shared  -o karkas_engine.cpython-313-x86_64-linux-gnu.so CMakeFiles/karkas_engine.dir/server/core/python_bindings.cpp.o  libkarkas_core.a -lgdal /usr/lib64/libpq.so _deps/yaml-cpp-build/libyaml-cppd.a
