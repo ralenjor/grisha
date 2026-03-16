@@ -1,0 +1,35 @@
+# KARKAS Docker Compose Development Overrides
+# Use with: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # For development, we can use a simpler build
+      # target: runtime
+    volumes:
+      # Mount source code for hot reload
+      - ./server:/app/server:ro
+      - ./client:/app/client:ro
+      - ./tools:/app/tools:ro
+      # Mount data directories
+      - ./data:/app/data:ro
+    environment:
+      - KARKAS_DEBUG=true
+      - KARKAS_DB_ECHO=true
+    command: >
+      uvicorn server.api.main:app
+      --host 0.0.0.0
+      --port 8080
+      --reload
+      --reload-dir /app/server
+      --reload-dir /app/client
+    # Disable health check in dev mode (faster startup)
+    healthcheck:
+      disable: true
+
+  db:
+    # In development, expose database directly
+    ports:
+      - "5433:5432"

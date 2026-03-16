@@ -2,6 +2,10 @@ import chromadb
 from fastapi import FastAPI
 from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
 import uvicorn
+from grisha_logging import setup_logging, get_logger
+
+setup_logging()
+logger = get_logger("api")
 
 # --- CONFIGURATION (Matches your query script) ---
 CHROMA_PATH = "./grisha_db"
@@ -55,5 +59,5 @@ def search(q: str):
     return {"context": full_context}
 
 if __name__ == "__main__":
-    # Run on 0.0.0.0 so the Docker container can reach it
+    logger.info("Starting Grisha API server on 0.0.0.0:8000")
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -1,9 +1,30 @@
 model_settings:
   max_tokens: 900
   overlap_tokens: 150
-  model_name: "llama3.1" # the LLM for answering
+  model_name: "qwen2.5:14b-instruct-q4_K_M" # the LLM for answering
   embed_model: "bge-large-en-v1.5" # model for vectorizing
 
 database_settings:
   path: "./grisha_db" # Where ChromaDB will save its files
   collection_name: "grisha_knowledge"
+
+bm25_settings:
+  index_path: "./bm25_index"  # Where BM25 index files are stored
+  k1: 1.2                      # Term frequency saturation (1.2-2.0 typical)
+  b: 0.75                      # Document length normalization (0.75 typical)
+
+hybrid_settings:
+  enabled: false               # Enable hybrid search (semantic + BM25) - set true after running ingestor
+  rrf_k: 60.0                  # RRF constant (higher = more weight to lower ranks)
+  semantic_weight: 0.5         # Weight for semantic search results
+  bm25_weight: 0.5             # Weight for BM25 search results
+
+hallucination_guard:
+  verify_citations: true       # Check that citations match retrieved sources
+  fail_on_invalid: false       # If true, reject responses with unverified citations
+  warn_user: true              # Append warning to responses with unverified citations
+
+logging:
+  level: "INFO"                # DEBUG, INFO, WARNING, ERROR
+  format: "text"               # text or json
+  file: null                   # Optional log file path (e.g., "./grisha.log")

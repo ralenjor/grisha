@@ -1,0 +1,14 @@
+# Target labels
+ json-populate
+# Source files and their labels
+/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-subbuild/CMakeFiles/json-populate
+/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-subbuild/CMakeFiles/json-populate.rule
+/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-subbuild/CMakeFiles/json-populate-complete.rule
+/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/json-populate-build.rule
+/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/json-populate-configure.rule
+/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/json-populate-download.rule
+/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/json-populate-install.rule
+/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/json-populate-mkdir.rule
+/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/json-populate-patch.rule
+/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/json-populate-test.rule
+/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/json-populate-update.rule

@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "karkas"
+version = "0.1.0"
+description = "KARKAS - Theater-Level Military Simulation Platform"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "websockets>=12.0",
+    "pydantic>=2.5.0",
+    "sqlalchemy>=2.0.0",
+    "psycopg2-binary>=2.9.0",
+    "geoalchemy2>=0.14.0",
+    "shapely>=2.0.0",
+    "numpy>=1.26.0",
+    "pyyaml>=6.0",
+    "httpx>=0.26.0",
+    # Terrain processor dependencies
+    "rasterio>=1.3.0",
+    "fiona>=1.9.0",
+    "geopandas>=0.14.0",
+    "pyproj>=3.6.0",
+    "requests>=2.31.0",
+    "tqdm>=4.66.0",
+    "scipy>=1.11.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "black>=24.1.0",
+    "ruff>=0.1.0",
+    "mypy>=1.8.0",
+]
+
+[project.scripts]
+karkas-server = "karkas.api.main:main"
+scenario-editor = "tools.scenario_editor.main:main"
+terrain-processor = "tools.terrain_processor.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["server*", "client*", "tools*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true

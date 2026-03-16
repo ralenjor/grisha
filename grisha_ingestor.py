@@ -8,11 +8,24 @@ import tiktoken
 import chromadb
 import pdfplumber
 import pytesseract
+import logging
 
 from pathlib import Path
 from pdf2image import convert_from_path
 from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
 from nltk.tokenize import sent_tokenize
+from grisha_logging import get_logger
+
+logger = get_logger("ingest")
+
+# BM25 hybrid search module (optional)
+try:
+    import grisha_bm25
+    BM25_AVAILABLE = True
+except ImportError:
+    BM25_AVAILABLE = False
+    logger.warning("grisha_bm25 module not found. BM25 indexing disabled.")
+    logger.info("To enable: cd cpp && pip install -e .")
 
 # -------------------------
 # NLTK Setup
@@ -106,7 +119,7 @@ def extract_text_from_pdf(pdf_path):
                 text += extracted + "\n"
             else:
                 # OCR ONLY the specific empty page, not the whole book
-                print(f"OCR needed for page {page.page_number} of {pdf_path}")
+                logger.debug(f"OCR needed for page {page.page_number} of {pdf_path}")
                 page_image = page.to_image(resolution=300).original
                 text += pytesseract.image_to_string(page_image) + "\n"
     return text.strip()
@@ -233,12 +246,38 @@ def process_file(path):
         }
 
 # -------------------------
+# BM25 Index Management
+# -------------------------
+def create_bm25_index(config):
+    """Create a new BM25 index with config parameters."""
+    if not BM25_AVAILABLE:
+        return None
+
+    bm25_settings = config.get("bm25_settings", {})
+    k1 = bm25_settings.get("k1", 1.2)
+    b = bm25_settings.get("b", 0.75)
+
+    return grisha_bm25.BM25Index(k1=k1, b=b)
+
+def save_bm25_index(index, config):
+    """Save BM25 index to disk."""
+    if index is None:
+        return
+
+    bm25_settings = config.get("bm25_settings", {})
+    index_path = bm25_settings.get("index_path", "./bm25_index")
+
+    index.finalize()
+    index.save(index_path)
+    logger.info(f"BM25 index saved: {index.document_count} docs, {index.vocabulary_size} terms, avg length {index.average_doc_length:.1f}")
+
+# -------------------------
 # Main
 # -------------------------
 def main():
 
     if len(sys.argv) < 2:
-        print("Usage: python grisha_ingestion.py <file_or_folder>")
+        print("Usage: python grisha_ingestor.py <file_or_folder>")
         return
 
     input_path = Path(sys.argv[1])
@@ -250,6 +289,9 @@ def main():
         name="grisha_knowledge",
         embedding_function=embedding_function
     )
+
+    # Initialize BM25 index if available
+    bm25_index = create_bm25_index(config)
 
     batch_docs = []
     batch_metadatas = []
@@ -267,7 +309,7 @@ def main():
         if not file_path.suffix.lower() in [".jsonl", ".pdf"]:
             continue
 
-        print(f"Processing: {file_path}")
+        logger.info(f"Processing: {file_path}")
 
         for doc in process_file(file_path):
             for chunk in chunk_document(doc):
@@ -278,9 +320,15 @@ def main():
                 entities = extract_entities(chunk_text)
                 metadata["entities"] = ", ".join(entities)
 
+                doc_id = f"id_{total_count}"
+
                 batch_docs.append(chunk_text)
                 batch_metadatas.append(metadata)
-                batch_ids.append(f"id_{total_count}")
+                batch_ids.append(doc_id)
+
+                # Add to BM25 index
+                if bm25_index is not None:
+                    bm25_index.add_document(doc_id, chunk_text)
 
                 total_count += 1
 
@@ -293,7 +341,7 @@ def main():
                     batch_docs = []
                     batch_metadatas = []
                     batch_ids = []
-                    print(f"Uploaded {total_count} chunks...")
+                    logger.info(f"Uploaded {total_count} chunks")
 
     if batch_docs:
         collection.add(
@@ -302,7 +350,12 @@ def main():
             ids=batch_ids
         )
 
-    print(f"Success. Total chunks stored: {total_count}")
+    logger.info(f"Success. Total chunks stored: {total_count}")
+
+    # Save BM25 index
+    save_bm25_index(bm25_index, config)
 
 if __name__ == "__main__":
+    from grisha_logging import setup_logging
+    setup_logging()
     main()

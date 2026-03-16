@@ -1,0 +1,41 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/karkas_core.dir/server/core/combat/combat_resolver.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/combat/combat_resolver.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/combat/engagement.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/combat/engagement.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/game_state.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/game_state.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/logistics/supply_model.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/logistics/supply_model.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/movement/movement_resolver.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/movement/movement_resolver.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/movement/pathfinder.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/movement/pathfinder.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/orbat_manager.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/orbat_manager.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/perception_generator.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/perception_generator.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/sensors/detection.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/sensors/detection.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/sensors/sensor_model.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/sensors/sensor_model.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/simulation.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/simulation.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/terrain/los_calculator.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/terrain/los_calculator.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/terrain/mobility.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/terrain/mobility.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/terrain/terrain_engine.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/terrain/terrain_engine.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/turn_executor.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/turn_executor.cpp.o.d"
+  "CMakeFiles/karkas_core.dir/server/core/unit.cpp.o"
+  "CMakeFiles/karkas_core.dir/server/core/unit.cpp.o.d"
+  "libkarkas_core.a"
+  "libkarkas_core.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/karkas_core.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

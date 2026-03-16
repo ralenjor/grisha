@@ -1,0 +1,338 @@
+[
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/unit.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/unit.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/unit.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/unit.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/terrain/terrain_engine.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/terrain/terrain_engine.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/terrain/terrain_engine.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/terrain/terrain_engine.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/terrain/los_calculator.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/terrain/los_calculator.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/terrain/los_calculator.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/terrain/los_calculator.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/terrain/mobility.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/terrain/mobility.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/terrain/mobility.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/terrain/mobility.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/combat/combat_resolver.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/combat/combat_resolver.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/combat/combat_resolver.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/combat/combat_resolver.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/combat/engagement.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/combat/engagement.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/combat/engagement.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/combat/engagement.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/movement/pathfinder.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/movement/pathfinder.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/movement/pathfinder.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/movement/pathfinder.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/movement/movement_resolver.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/movement/movement_resolver.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/movement/movement_resolver.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/movement/movement_resolver.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/sensors/sensor_model.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/sensors/sensor_model.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/sensors/sensor_model.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/sensors/sensor_model.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/sensors/detection.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/sensors/detection.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/sensors/detection.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/sensors/detection.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/logistics/supply_model.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/logistics/supply_model.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/logistics/supply_model.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/logistics/supply_model.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/simulation.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/simulation.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/simulation.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/simulation.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/game_state.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/game_state.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/game_state.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/game_state.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/turn_executor.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/turn_executor.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/turn_executor.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/turn_executor.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/perception_generator.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/perception_generator.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/perception_generator.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/perception_generator.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -fPIC -o CMakeFiles/karkas_core.dir/server/core/orbat_manager.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/orbat_manager.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/orbat_manager.cpp",
+  "output": "CMakeFiles/karkas_core.dir/server/core/orbat_manager.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build",
+  "command": "/usr/bin/c++ -DKARKAS_BUILD_PYTHON_BINDINGS -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -Dkarkas_engine_EXPORTS -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -isystem /home/chris/.local/lib/python3.13/site-packages/pybind11/include -isystem /usr/include/python3.13 -g -std=gnu++20 -fPIC -fvisibility=hidden -o CMakeFiles/karkas_engine.dir/server/core/python_bindings.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/server/core/python_bindings.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/server/core/python_bindings.cpp",
+  "output": "CMakeFiles/karkas_engine.dir/server/core/python_bindings.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/contrib/graphbuilder.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/contrib/graphbuilder.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/contrib/graphbuilder.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/contrib/graphbuilder.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/contrib/graphbuilderadapter.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/contrib/graphbuilderadapter.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/contrib/graphbuilderadapter.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/contrib/graphbuilderadapter.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/binary.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/binary.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/binary.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/binary.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/convert.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/convert.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/convert.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/convert.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/depthguard.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/depthguard.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/depthguard.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/depthguard.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/directives.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/directives.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/directives.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/directives.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/emit.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/emit.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/emit.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/emit.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/emitfromevents.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/emitfromevents.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/emitfromevents.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/emitfromevents.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/emitter.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/emitter.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/emitter.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/emitter.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/emitterstate.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/emitterstate.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/emitterstate.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/emitterstate.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/emitterutils.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/emitterutils.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/emitterutils.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/emitterutils.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/exceptions.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/exceptions.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/exceptions.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/exceptions.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/exp.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/exp.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/exp.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/exp.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/memory.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/memory.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/memory.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/memory.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/node.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/node.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/node.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/node.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/node_data.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/node_data.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/node_data.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/node_data.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/nodebuilder.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/nodebuilder.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/nodebuilder.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/nodebuilder.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/nodeevents.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/nodeevents.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/nodeevents.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/nodeevents.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/null.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/null.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/null.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/null.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/ostream_wrapper.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/ostream_wrapper.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/ostream_wrapper.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/ostream_wrapper.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/parse.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/parse.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/parse.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/parse.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/parser.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/parser.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/parser.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/parser.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/regex_yaml.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/regex_yaml.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/regex_yaml.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/regex_yaml.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/scanner.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/scanner.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/scanner.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/scanner.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/scanscalar.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/scanscalar.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/scanscalar.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/scanscalar.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/scantag.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/scantag.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/scantag.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/scantag.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/scantoken.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/scantoken.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/scantoken.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/scantoken.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/simplekey.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/simplekey.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/simplekey.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/simplekey.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/singledocparser.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/singledocparser.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/singledocparser.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/singledocparser.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/stream.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/stream.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/stream.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/stream.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-build",
+  "command": "/usr/bin/c++ -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src -g -std=gnu++20 -fPIC -o CMakeFiles/yaml-cpp.dir/src/tag.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/tag.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/src/tag.cpp",
+  "output": "_deps/yaml-cpp-build/CMakeFiles/yaml-cpp.dir/src/tag.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -o CMakeFiles/karkas_tests.dir/server/test_unit.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/tests/server/test_unit.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/tests/server/test_unit.cpp",
+  "output": "tests/CMakeFiles/karkas_tests.dir/server/test_unit.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -o CMakeFiles/karkas_tests.dir/server/test_orbat_manager.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/tests/server/test_orbat_manager.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/tests/server/test_orbat_manager.cpp",
+  "output": "tests/CMakeFiles/karkas_tests.dir/server/test_orbat_manager.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -o CMakeFiles/karkas_tests.dir/server/test_terrain.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/tests/server/test_terrain.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/tests/server/test_terrain.cpp",
+  "output": "tests/CMakeFiles/karkas_tests.dir/server/test_terrain.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -o CMakeFiles/karkas_tests.dir/server/test_movement.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/tests/server/test_movement.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/tests/server/test_movement.cpp",
+  "output": "tests/CMakeFiles/karkas_tests.dir/server/test_movement.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -o CMakeFiles/karkas_tests.dir/server/test_sensors.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/tests/server/test_sensors.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/tests/server/test_sensors.cpp",
+  "output": "tests/CMakeFiles/karkas_tests.dir/server/test_sensors.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -o CMakeFiles/karkas_tests.dir/server/test_combat.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/tests/server/test_combat.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/tests/server/test_combat.cpp",
+  "output": "tests/CMakeFiles/karkas_tests.dir/server/test_combat.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -o CMakeFiles/karkas_tests.dir/server/test_logistics.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/tests/server/test_logistics.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/tests/server/test_logistics.cpp",
+  "output": "tests/CMakeFiles/karkas_tests.dir/server/test_logistics.cpp.o"
+},
+{
+  "directory": "/home/chris/Documents/Projects/grisha/karkas/build/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -DKARKAS_HAS_GDAL -DYAML_CPP_STATIC_DEFINE -I/home/chris/Documents/Projects/grisha/karkas/server/core -I/usr/include/gdal -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/json-src/include -I/home/chris/Documents/Projects/grisha/karkas/build/_deps/yaml-cpp-src/include -g -std=gnu++20 -o CMakeFiles/karkas_tests.dir/server/test_simulation.cpp.o -c /home/chris/Documents/Projects/grisha/karkas/tests/server/test_simulation.cpp",
+  "file": "/home/chris/Documents/Projects/grisha/karkas/tests/server/test_simulation.cpp",
+  "output": "tests/CMakeFiles/karkas_tests.dir/server/test_simulation.cpp.o"
+}
+]

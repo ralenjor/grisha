@@ -1,0 +1,25 @@
+model_settings:
+  max_tokens: 100
+  overlap_tokens: 20
+  model_name: "test-model"
+  embed_model: "test-embed"
+
+database_settings:
+  path: ":memory:"
+  collection_name: "test_collection"
+
+bm25_settings:
+  k1: 1.5
+  b: 0.75
+  index_path: "/tmp/test_bm25"
+
+hybrid_settings:
+  enabled: true
+  rrf_k: 60.0
+  semantic_weight: 0.7
+  bm25_weight: 0.3
+
+hallucination_guard:
+  verify_citations: true
+  fail_on_invalid: false
+  warn_user: true

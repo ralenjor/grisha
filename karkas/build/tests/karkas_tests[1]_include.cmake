@@ -1,0 +1,5 @@
+if(EXISTS "/home/chris/Documents/Projects/grisha/karkas/build/tests/karkas_tests[1]_tests.cmake")
+  include("/home/chris/Documents/Projects/grisha/karkas/build/tests/karkas_tests[1]_tests.cmake")
+else()
+  add_test(karkas_tests_NOT_BUILT karkas_tests_NOT_BUILT)
+endif()

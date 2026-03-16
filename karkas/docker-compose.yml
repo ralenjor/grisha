@@ -1,0 +1,98 @@
+# KARKAS Docker Compose Configuration
+# Orchestrates: Server, PostgreSQL/PostGIS, and optional Grisha RAG service
+
+services:
+  # ==========================================================================
+  # KARKAS Server
+  # ==========================================================================
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: karkas-server
+    ports:
+      - "${KARKAS_PORT:-8080}:8080"
+    environment:
+      - KARKAS_PORT=8080
+      - KARKAS_DB_ENABLED=true
+      - KARKAS_DB_HOST=db
+      - KARKAS_DB_PORT=5432
+      - KARKAS_DB_NAME=${KARKAS_DB_NAME:-karkas}
+      - KARKAS_DB_USER=${KARKAS_DB_USER:-karkas}
+      - KARKAS_DB_PASSWORD=${KARKAS_DB_PASSWORD:-karkas}
+      - GRISHA_API_URL=${GRISHA_API_URL:-http://grisha:8000}
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
+    volumes:
+      # Mount terrain data (read-only)
+      - ./data/terrain:/app/data/terrain:ro
+      # Mount scenarios (read-only)
+      - ./data/scenarios:/app/data/scenarios:ro
+      # Mount doctrine data if available
+      - ./data/doctrine:/app/data/doctrine:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - karkas-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8080/health').raise_for_status()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ==========================================================================
+  # PostgreSQL with PostGIS
+  # ==========================================================================
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: karkas-db
+    environment:
+      - POSTGRES_DB=${KARKAS_DB_NAME:-karkas}
+      - POSTGRES_USER=${KARKAS_DB_USER:-karkas}
+      - POSTGRES_PASSWORD=${KARKAS_DB_PASSWORD:-karkas}
+    volumes:
+      # Persist database data
+      - karkas-db-data:/var/lib/postgresql/data
+      # Initialization scripts
+      - ./docker/db-init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "${KARKAS_DB_EXTERNAL_PORT:-5433}:5432"
+    networks:
+      - karkas-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KARKAS_DB_USER:-karkas} -d ${KARKAS_DB_NAME:-karkas}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ==========================================================================
+  # Grisha RAG Service (optional - connects to main Grisha instance)
+  # ==========================================================================
+  # Uncomment if running Grisha as a containerized service
+  # grisha:
+  #   build:
+  #     context: ../
+  #     dockerfile: Dockerfile.grisha
+  #   container_name: karkas-grisha
+  #   ports:
+  #     - "${GRISHA_PORT:-8000}:8000"
+  #   environment:
+  #     - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
+  #   volumes:
+  #     - ../grisha_db:/app/grisha_db
+  #     - ../bm25_index:/app/bm25_index
+  #   networks:
+  #     - karkas-network
+  #   restart: unless-stopped
+
+networks:
+  karkas-network:
+    driver: bridge
+
+volumes:
+  karkas-db-data:
+    driver: local

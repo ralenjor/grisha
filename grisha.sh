@@ -1,54 +1,70 @@
 #!/bin/bash
 
-# 1. Activate the virtual environment
+# 1. Environment & Config
+VENV_PATH="./venv/bin/activate"
+MODEL_NAME="qwen2.5:14b-instruct-q4_K_M" # Ensure this matches 'ollama list'
 
 echo "======================================================="
 echo "        INITIALIZING GRISHA: TACTICAL ADVISOR          "
 echo "======================================================="
 
-if [ -d "venv" ]; then
-    source venv/bin/activate
+# Function for the loading spinner
+spinner() {
+    local pid=$1
+    local delay=0.1
+    local spinstr='|/-\'
+    echo -n " "
+    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
+}
+
+# 2. Virtual Environment Check
+if [ -f "$VENV_PATH" ]; then
+    source "$VENV_PATH"
 else
-    echo "Error: Virtual environment 'venv' not found. Please create it first."
+    echo "Error: Virtual environment not found at $VENV_PATH"
     exit 1
 fi
 
-# 2. Ensure Ollama service is running
-echo "Checking Ollama service..."
+# 3. Service Check
 if ! systemctl is-active --quiet ollama; then
-    echo "Ollama service is inactive. Attempting to start..."
-    # Using sudo because systemctl start requires privileges on Fedora
+    echo "Ollama service is inactive. Starting..."
     sudo systemctl start ollama
 fi
 
-# 3. Wait for the API to be actually READY
-echo "Waiting for Ollama API to initialize..."
+# 4. API Readiness Loop
 MAX_RETRIES=10
 COUNT=0
-
 while [ $COUNT -lt $MAX_RETRIES ]; do
-    # Check the API status
-    STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:11434/api/tags)
-    
+    STATUS=$(curl -s -m 5 -o /dev/null -w "%{http_code}" http://localhost:11434/api/tags)
     if [ "$STATUS" -eq 200 ]; then
-        echo "API is ONLINE."
         break
     else
-        echo "API still warming up... (Attempt $((COUNT+1))/$MAX_RETRIES)"
+        COUNT=$((COUNT + 1))
+        echo "Waiting for API... ($COUNT/$MAX_RETRIES)"
         sleep 2
-        ((COUNT++))
-    fi
-
-    if [ $COUNT -eq $MAX_RETRIES ]; then
-        echo "Error: API failed to start after $MAX_RETRIES attempts."
-        echo "Try running 'journalctl -u ollama' to see the logs."
-        exit 1
     fi
 done
 
+# 5. Pre-loading the Model (The "Warm-up" with Spinner)
+echo -n "Synchronizing Grisha's memory (Pre-loading Model)..."
+# Run the pre-load in the background
+ollama run $MODEL_NAME "" --keepalive 10m > /dev/null 2>&1 &
+# Capture the PID of the background process
+LOAD_PID=$!
+# Start the spinner for that PID
+spinner $LOAD_PID
+
+echo " DONE."
 echo "------------------------------------------------"
-echo " Grisha is online."
+echo " Grisha is fully operational."
 echo "------------------------------------------------"
 
-# 4. Run the query script
-python grisha_query.py
+# 6. Execute Query Engine
+python3 grisha_query.py

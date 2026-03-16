@@ -4,6 +4,10 @@ Reranks ChromaDB retrieval results based on multiple signals for improved releva
 """
 
 from typing import List, Dict, Tuple, Any
+from grisha_logging import get_logger
+
+logger = get_logger("rerank")
+
 
 class GrishaReranker:
     """
@@ -45,11 +49,11 @@ class GrishaReranker:
         return_top: int = 3,
         max_per_source: int = 2,
         relevance_threshold: float = 2.0,
-        verbose: bool = False
+        use_hybrid_scores: bool = True
     ) -> List[Tuple[str, Dict[str, Any], float]]:
         """
         Rerank retrieved chunks based on multiple signals.
-        
+
         Args:
             documents: List of document texts from ChromaDB
             metadatas: List of metadata dicts from ChromaDB
@@ -58,8 +62,8 @@ class GrishaReranker:
             return_top: Number of top chunks to return
             max_per_source: Maximum chunks from same source (diversity control)
             relevance_threshold: Distance threshold for filtering
-            verbose: Print debug information
-        
+            use_hybrid_scores: Use hybrid RRF scores from metadata if available
+
         Returns:
             List of (doc, meta, score) tuples, sorted by score descending
         """
@@ -88,12 +92,20 @@ class GrishaReranker:
                 continue
             
             # Calculate individual scores
-            semantic_score = self._calculate_semantic_score(dist)
+            # Use hybrid score if available, otherwise use semantic distance
+            hybrid_score = meta.get('hybrid_score') if use_hybrid_scores else None
+            if hybrid_score is not None:
+                # Hybrid score already incorporates semantic + BM25 via RRF
+                # Scale it to match our scoring range (RRF scores are typically 0.01-0.03)
+                semantic_score = hybrid_score * 100  # Scale up for comparable weighting
+            else:
+                semantic_score = self._calculate_semantic_score(dist)
+
             type_score = self._calculate_type_score(doc_type)
             source_score = self._calculate_source_score(source_type)
             nation_score = self._calculate_nation_score(nation, is_opfor)
             length_score = self._calculate_length_score(doc)
-            
+
             # Composite score
             final_score = (
                 semantic_score * self.weights["semantic"] +
@@ -109,13 +121,15 @@ class GrishaReranker:
                 'score': final_score,
                 'dist': dist,
                 'source_key': source_key,
+                'hybrid_score': hybrid_score,
                 'breakdown': {
                     'semantic': semantic_score,
                     'type': type_score,
                     'source': source_score,
                     'nation': nation_score,
-                    'length': length_score
-                } if verbose else None
+                    'length': length_score,
+                    'hybrid': hybrid_score
+                }
             })
             
             # Update source count
@@ -123,22 +137,19 @@ class GrishaReranker:
         
         # Sort by score descending
         scored_chunks.sort(key=lambda x: x['score'], reverse=True)
-        
+
         # Debug output
-        if verbose:
-            print("\n" + "="*80)
-            print("RERANKER DEBUG OUTPUT")
-            print("="*80)
+        if scored_chunks:
+            hybrid_mode = any(c.get('hybrid_score') is not None for c in scored_chunks[:return_top])
+            logger.debug(f"Reranker mode: {'HYBRID (semantic + BM25)' if hybrid_mode else 'SEMANTIC ONLY'}")
             for i, chunk in enumerate(scored_chunks[:return_top], 1):
-                print(f"\n{i}. SCORE: {chunk['score']:.2f} | DIST: {chunk['dist']:.3f}")
-                print(f"   Nation: {chunk['meta'].get('nation')}")
-                print(f"   Type: {chunk['meta'].get('doc_type')}")
-                print(f"   Source: {chunk['meta'].get('source_type')}")
-                print(f"   Title: {chunk['meta'].get('title', 'Unknown')[:60]}...")
-                if chunk['breakdown']:
-                    print(f"   Breakdown: {chunk['breakdown']}")
-            print("="*80 + "\n")
-        
+                hybrid_str = f" | HYBRID: {chunk['hybrid_score']:.4f}" if chunk.get('hybrid_score') else ""
+                logger.debug(
+                    f"{i}. SCORE: {chunk['score']:.2f} | DIST: {chunk['dist']:.3f}{hybrid_str} | "
+                    f"{chunk['meta'].get('nation')} | {chunk['meta'].get('doc_type')} | "
+                    f"{chunk['meta'].get('title', 'Unknown')[:40]}..."
+                )
+
         # Return top N as (doc, meta, score) tuples
         return [(c['doc'], c['meta'], c['score']) for c in scored_chunks[:return_top]]
     
