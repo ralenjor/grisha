@@ -328,8 +328,35 @@ cd karkas/server/core/build && ctest --output-on-failure
 
 ## Documentation
 
-- **[User Guide](USER_GUIDE.md)** - Setup, configuration, and usage
-- **[config.yaml](config.yaml)** - Grisha configuration reference
+### Main Documentation
+
+| Document | Description |
+|----------|-------------|
+| **[User Guide](USER_GUIDE.md)** | Complete setup, configuration, and usage for Grisha + Karkas |
+| **[config.yaml](config.yaml)** | Grisha configuration reference |
+
+### Karkas Documentation
+
+| Document | Description |
+|----------|-------------|
+| **[karkas/README.md](karkas/README.md)** | Karkas platform overview, architecture, API reference |
+| **[karkas/DEVELOPMENT_PLAN.md](karkas/DEVELOPMENT_PLAN.md)** | Development roadmap and task tracking (95% complete) |
+| **[karkas/tests/README.md](karkas/tests/README.md)** | C++ test suite documentation (building, running, debugging) |
+
+### Component Documentation
+
+| Document | Description |
+|----------|-------------|
+| **[cpp/README.md](cpp/README.md)** | C++ BM25 hybrid search module API and usage |
+
+### Claude Code Instructions
+
+These files provide context for AI-assisted development:
+
+| Document | Description |
+|----------|-------------|
+| **[CLAUDE.md](CLAUDE.md)** | Grisha project guidance for Claude Code |
+| **[karkas/CLAUDE.md](karkas/CLAUDE.md)** | Karkas-specific guidance (architecture, terrain, conventions) |
 
 ## Acknowledgments
 

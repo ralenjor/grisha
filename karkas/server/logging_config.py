@@ -262,6 +262,16 @@ def get_logger(name: str) -> logging.Logger:
     return logging.getLogger(name)
 
 
+def get_request_id() -> Optional[str]:
+    """
+    Get the current request ID from context.
+
+    Returns:
+        The request ID if set, otherwise None
+    """
+    return request_id_var.get()
+
+
 def log_execution_time(logger: Optional[logging.Logger] = None, level: int = logging.DEBUG):
     """
     Decorator to log function execution time.
