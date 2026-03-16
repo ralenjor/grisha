@@ -24,6 +24,12 @@ This guide covers how to set up, configure, and use the Grisha RAG system and Ka
 | GPU | Not required | NVIDIA GPU for faster inference |
 | OS | Linux (tested on Fedora) | Linux |
 
+**Required tools:**
+- Python 3.11+
+- Ollama
+- tmux (for unified launcher)
+- PostgreSQL with PostGIS (for Karkas persistence)
+
 ### Installing Ollama
 
 Grisha requires Ollama for local LLM inference.
@@ -243,6 +249,10 @@ Response:
 Karkas requires additional setup beyond Grisha:
 
 ```bash
+# Install tmux (for unified launcher)
+sudo dnf install tmux  # Fedora
+sudo apt install tmux  # Ubuntu
+
 # Install PostgreSQL with PostGIS
 sudo dnf install postgresql-server postgis  # Fedora
 sudo apt install postgresql postgis         # Ubuntu
@@ -273,16 +283,68 @@ cd ../../../..
 python -c "import karkas_engine; print('Karkas engine OK')"
 ```
 
-### Starting the Server
+### Unified Launcher (Recommended)
+
+The easiest way to run both Grisha and Karkas together:
 
 ```bash
-cd karkas
+./karkas.sh
+```
 
-# Using Docker (recommended)
+This script:
+1. Checks all prerequisites (venv, Ollama, PostgreSQL, tmux)
+2. Starts PostgreSQL if not running
+3. Starts Ollama if not running
+4. Pre-loads the LLM model into memory
+5. Launches Grisha API (port 8000) and Karkas Server (port 8080) in tmux
+6. Performs health checks and waits for services to be ready
+7. Attaches you to the tmux session
+
+**tmux layout:**
+```
+┌─────────────────────────────────────┐
+│          Grisha API (8000)          │
+├─────────────────────────────────────┤
+│         Karkas Server (8080)        │
+└─────────────────────────────────────┘
+```
+
+**tmux controls:**
+
+| Keys | Action |
+|------|--------|
+| `Ctrl-B D` | Detach from session (services keep running) |
+| `Ctrl-B ↑` or `Ctrl-B ↓` | Switch between panes |
+| `Ctrl-B [` | Enter scroll mode (press `q` to exit) |
+| `Ctrl-C` | Stop service in current pane |
+
+**Reattaching later:**
+```bash
+tmux attach -t karkas
+```
+
+**Stopping all services:**
+```bash
+./karkas-stop.sh
+```
+
+The stop script shows the status of each service and cleanly terminates the tmux session. PostgreSQL and Ollama remain running (managed by systemd).
+
+### Starting Components Individually
+
+If you prefer to run services separately:
+
+```bash
+# Karkas only (Docker)
+cd karkas
 make build
 make run
 
-# Or locally
+# Karkas only (local)
+cd karkas
+./run_server.sh
+
+# Or manually
 export KARKAS_DB_HOST=localhost
 export KARKAS_DB_PASSWORD=karkas
 python -m uvicorn server.api.main:app --reload
@@ -485,6 +547,58 @@ cd karkas/tools/terrain_processor
 python main.py --region tutorial --resolution 100
 ```
 
+### Unified Launcher Issues
+
+**tmux not found:**
+```bash
+sudo dnf install tmux  # Fedora
+sudo apt install tmux  # Ubuntu
+```
+
+**Session already exists:**
+```bash
+# Either attach to existing session
+tmux attach -t karkas
+
+# Or kill and restart
+./karkas-stop.sh && ./karkas.sh
+```
+
+**Services not becoming healthy:**
+
+If the health check times out, the services may still be starting. Check the tmux session for errors:
+```bash
+tmux attach -t karkas
+# Look at each pane for error messages
+```
+
+Common causes:
+- ChromaDB collection not found (run ingestor first)
+- Port already in use (check with `lsof -i:8000` or `lsof -i:8080`)
+- Missing Python dependencies
+
+**Orphaned processes after crash:**
+
+If services are running outside tmux (e.g., after a crash):
+```bash
+# Find and kill processes on the ports
+lsof -ti:8000 | xargs kill  # Grisha API
+lsof -ti:8080 | xargs kill  # Karkas Server
+```
+
+**PostgreSQL won't start:**
+```bash
+# Check status
+sudo systemctl status postgresql
+
+# View logs
+sudo journalctl -u postgresql -n 50
+
+# Common fix: initialize if first time
+sudo postgresql-setup --initdb
+sudo systemctl start postgresql
+```
+
 ### Performance Tuning
 
 **Slow queries:**
@@ -496,6 +610,38 @@ python main.py --region tutorial --resolution 100
 - Reduce ChromaDB cache size
 - Use smaller embedding model
 - Limit concurrent connections
+
+---
+
+## Quick Reference
+
+### Launcher Commands
+
+| Command | Description |
+|---------|-------------|
+| `./karkas.sh` | Start Grisha API + Karkas Server |
+| `./karkas-stop.sh` | Stop all services |
+| `./grisha.sh` | Start Grisha interactive mode only |
+| `tmux attach -t karkas` | Reattach to running session |
+
+### Service Endpoints
+
+| Service | URL | Health Check |
+|---------|-----|--------------|
+| Grisha API | http://localhost:8000 | `/search?q=test` |
+| Karkas Server | http://localhost:8080 | `/health` |
+| Karkas API Docs | http://localhost:8080/docs | - |
+
+### tmux Quick Reference
+
+| Keys | Action |
+|------|--------|
+| `Ctrl-B D` | Detach (services keep running) |
+| `Ctrl-B ↑/↓` | Switch panes |
+| `Ctrl-B [` | Scroll mode (`q` to exit) |
+| `Ctrl-B %` | Split pane vertically |
+| `Ctrl-B "` | Split pane horizontally |
+| `Ctrl-B x` | Kill current pane |
 
 ---
 

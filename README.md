@@ -83,6 +83,7 @@ Grisha is a RAG (Retrieval-Augmented Generation) system for military doctrine. K
 - Ollama with `qwen2.5:14b-instruct-q4_K_M`
 - PostgreSQL 16+ with PostGIS 3.4+ (for Karkas)
 - CMake 3.20+, C++20 compiler, GDAL (for C++ components)
+- tmux (for unified launcher)
 
 ### Installation
 
@@ -144,21 +145,49 @@ python3 grisha_query.py
 python3 grisha_api.py
 ```
 
-### Running Karkas
+### Running the Full Stack (Grisha + Karkas)
 
-See the [User Guide](USER_GUIDE.md) for complete Karkas setup including PostgreSQL, C++ build, and terrain processing.
+The unified launcher starts both Grisha API and Karkas Server in a tmux session:
 
 ```bash
-cd karkas
-make build && make run    # Docker
-# or
-make run-local            # Local
+./karkas.sh      # Start all services
+./karkas-stop.sh # Stop all services
 ```
+
+The launcher:
+- Checks prerequisites (venv, Ollama, PostgreSQL, tmux)
+- Starts PostgreSQL and Ollama if not running
+- Pre-loads the LLM model
+- Launches services in a tmux session with split panes
+- Waits for health checks before attaching
+
+**tmux controls:**
+- `Ctrl-B D` - Detach (services keep running)
+- `Ctrl-B ↑/↓` - Switch panes
+- `tmux attach -t karkas` - Reattach later
+
+### Running Components Individually
+
+```bash
+# Grisha only (interactive)
+./grisha.sh
+
+# Karkas only (Docker)
+cd karkas && make build && make run
+
+# Karkas only (local)
+cd karkas && ./run_server.sh
+```
+
+See the [User Guide](USER_GUIDE.md) for complete setup including PostgreSQL, C++ build, and terrain processing.
 
 ## Project Structure
 
 ```
 grisha/
+├── karkas.sh               # Unified launcher (Grisha + Karkas)
+├── karkas-stop.sh          # Stop all services
+├── grisha.sh               # Grisha-only interactive launcher
 ├── grisha_ingestor.py      # Document ingestion pipeline
 ├── grisha_query.py         # Interactive query interface
 ├── grisha_api.py           # FastAPI search endpoint
